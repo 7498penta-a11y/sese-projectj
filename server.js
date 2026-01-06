@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
@@ -7,32 +6,42 @@ const fs = require('fs').promises;
 const path = require('path');
 
 const app = express();
-// Renderなどのホスティング環境に対応するため、環境変数PORTを優先して使う
+
+/* ====== 変更①：PORT を Render 対応 ====== */
 const PORT = process.env.PORT || 3001;
-// JWTのシークレットも環境変数から取得するのが推奨（開発時はデフォルトが使われる）
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+
+const JWT_SECRET = 'your-secret-key-change-in-production'; // 本番環境では環境変数推奨
 
 // データファイルのパス
 const DATA_DIR = path.join(__dirname, 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const CONTACTS_FILE = path.join(DATA_DIR, 'contacts.json');
 
+/* ====== 変更②：HTML 配信用ディレクトリ ====== */
+const PUBLIC_DIR = path.join(__dirname, 'public');
+
 app.use(cors());
 app.use(express.json());
+
+/* ====== 変更③：HTML / CSS / JS を読み込む ====== */
+app.use(express.static(PUBLIC_DIR));
+
+/* ====== トップページ（HTMLを表示） ====== */
+app.get('/', (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
+});
 
 // データディレクトリの初期化
 async function initDataDir() {
   try {
     await fs.mkdir(DATA_DIR, { recursive: true });
 
-    // ユーザーファイルの初期化
     try {
       await fs.access(USERS_FILE);
     } catch {
       await fs.writeFile(USERS_FILE, JSON.stringify([], null, 2));
     }
 
-    // お問い合わせファイルの初期化
     try {
       await fs.access(CONTACTS_FILE);
     } catch {
@@ -65,14 +74,6 @@ async function writeData(filePath, data) {
   }
 }
 
-// ルート（トップ） - HTMLを触らない方針なのでJSONでステータスを返す
-app.get('/', (req, res) => {
-  res.json({
-    status: 'ok',
-    message: 'SESE API Server is running'
-  });
-});
-
 // ユーザー登録
 app.post('/api/register', async (req, res) => {
   try {
@@ -82,25 +83,21 @@ app.post('/api/register', async (req, res) => {
       return res.status(400).json({ success: false, error: '全ての項目を入力してください' });
     }
 
-    // メールアドレスの検証
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ success: false, error: '有効なメールアドレスを入力してください' });
     }
 
-    // パスワードの検証（最低6文字）
     if (password.length < 6) {
       return res.status(400).json({ success: false, error: 'パスワードは6文字以上である必要があります' });
     }
 
     const users = await readData(USERS_FILE);
 
-    // 既存ユーザーチェック
     if (users.find(u => u.email === email)) {
       return res.status(400).json({ success: false, error: 'このメールアドレスは既に登録されています' });
     }
 
-    // パスワードのハッシュ化
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = {
@@ -114,7 +111,6 @@ app.post('/api/register', async (req, res) => {
     users.push(newUser);
     await writeData(USERS_FILE, users);
 
-    // JWTトークンの生成
     const token = jwt.sign(
       { id: newUser.id, email: newUser.email, name: newUser.name },
       JWT_SECRET,
@@ -148,13 +144,11 @@ app.post('/api/login', async (req, res) => {
       return res.status(401).json({ success: false, error: 'メールアドレスまたはパスワードが正しくありません' });
     }
 
-    // パスワードの検証
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       return res.status(401).json({ success: false, error: 'メールアドレスまたはパスワードが正しくありません' });
     }
 
-    // JWTトークンの生成
     const token = jwt.sign(
       { id: user.id, email: user.email, name: user.name },
       JWT_SECRET,
