@@ -1,3 +1,4 @@
+// server.js
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
@@ -6,8 +7,10 @@ const fs = require('fs').promises;
 const path = require('path');
 
 const app = express();
-const PORT = 3001;
-const JWT_SECRET = 'your-secret-key-change-in-production'; // 本番環境では環境変数で管理
+// Renderなどのホスティング環境に対応するため、環境変数PORTを優先して使う
+const PORT = process.env.PORT || 3001;
+// JWTのシークレットも環境変数から取得するのが推奨（開発時はデフォルトが使われる）
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 // データファイルのパス
 const DATA_DIR = path.join(__dirname, 'data');
@@ -21,14 +24,14 @@ app.use(express.json());
 async function initDataDir() {
   try {
     await fs.mkdir(DATA_DIR, { recursive: true });
-    
+
     // ユーザーファイルの初期化
     try {
       await fs.access(USERS_FILE);
     } catch {
       await fs.writeFile(USERS_FILE, JSON.stringify([], null, 2));
     }
-    
+
     // お問い合わせファイルの初期化
     try {
       await fs.access(CONTACTS_FILE);
@@ -62,6 +65,14 @@ async function writeData(filePath, data) {
   }
 }
 
+// ルート（トップ） - HTMLを触らない方針なのでJSONでステータスを返す
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'SESE API Server is running'
+  });
+});
+
 // ユーザー登録
 app.post('/api/register', async (req, res) => {
   try {
@@ -83,7 +94,7 @@ app.post('/api/register', async (req, res) => {
     }
 
     const users = await readData(USERS_FILE);
-    
+
     // 既存ユーザーチェック
     if (users.find(u => u.email === email)) {
       return res.status(400).json({ success: false, error: 'このメールアドレスは既に登録されています' });
