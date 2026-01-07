@@ -5,148 +5,93 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SESE鯖 - 公式サイト</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .fade-in { animation: fadeIn 0.3s ease-in-out; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .hidden { display: none; }
-  </style>
 </head>
-<body class="min-h-screen bg-gray-50 text-gray-800">
-
-  <header class="bg-white shadow-sm sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 flex items-center justify-between py-3">
-      <div class="flex items-center gap-3 cursor-pointer" onclick="router('home')">
-        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold">SE</div>
-        <div class="font-bold text-lg">SESE鯖</div>
-      </div>
-      <nav class="hidden md:flex gap-2">
-        <button onclick="router('home')" class="px-3 py-2 rounded-lg hover:bg-indigo-50">ホーム</button>
-        <button onclick="router('guidelines')" class="px-3 py-2 rounded-lg hover:bg-indigo-50">ガイドライン</button>
-        <button onclick="router('staff')" class="px-3 py-2 rounded-lg hover:bg-indigo-50">運営紹介</button>
-        <button onclick="router('contact')" class="px-3 py-2 rounded-lg hover:bg-indigo-50">お問い合わせ</button>
-        <button id="nav-admin" onclick="router('admin')" class="hidden px-3 py-2 rounded-lg bg-red-50 text-red-600 font-bold">管理画面</button>
+<body class="bg-gray-50 text-gray-800">
+  <header class="bg-white shadow-sm sticky top-0 z-50 p-4">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div class="font-bold text-xl cursor-pointer" onclick="router('home')">SESE鯖</div>
+      <nav class="flex gap-4">
+        <button onclick="router('home')">ホーム</button>
+        <button onclick="router('contact')">お問い合わせ</button>
+        <button id="nav-admin" class="hidden text-red-600 font-bold" onclick="router('admin')">管理画面</button>
+        <div id="user-area"></div>
       </nav>
-      <div id="user-area" class="flex items-center gap-3"></div>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto px-4 py-7">
-    <section id="page-home" class="page fade-in">
-      <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl p-8 mb-8 shadow-lg text-center">
-        <h1 class="text-3xl font-bold mb-3">SESE鯖へようこそ</h1>
-        <p class="mb-6 opacity-90">Discordコミュニティサーバー - 楽しく安全に交流しましょう</p>
-        <a href="https://discord.gg/WEWgXFss9p" target="_blank" class="px-5 py-2.5 bg-white text-indigo-600 rounded-lg font-bold">Discordに参加</a>
-      </div>
+  <main class="max-w-4xl mx-auto p-6">
+    <section id="page-home" class="page">
+        <h1 class="text-3xl font-bold">ようこそSESE鯖へ</h1>
+        <p class="mt-4">ここはDiscordサーバー「SESE鯖」の公式サイトです。</p>
     </section>
 
-    <section id="page-guidelines" class="page hidden fade-in">
-      <h1 class="text-2xl font-bold mb-4 border-b">ガイドライン</h1>
-      <div class="bg-white p-6 rounded-xl shadow-sm border space-y-4">
-        <p><strong>第一条:</strong> メンバー同士の敬意を忘れないこと。暴言、煽り行為を禁止します。</p>
-        <p><strong>第二条:</strong> 宣伝目的のみの参加や、スパム投稿を禁止します。</p>
+    <section id="page-contact" class="page hidden">
+      <div id="contact-guest" class="text-center py-10">
+        <p class="mb-4">ログインしてお問い合わせください</p>
+        <a href="/auth/google" class="bg-indigo-600 text-white px-6 py-2 rounded font-bold">Googleログイン</a>
       </div>
-    </section>
-
-    <section id="page-staff" class="page hidden fade-in">
-      <h1 class="text-2xl font-bold mb-6 border-b">運営紹介</h1>
-      <div class="grid md:grid-cols-2 gap-4">
-        <div class="p-4 bg-white rounded-lg border">👑 オーナー: @sese_PAP_1122</div>
-        <div class="p-4 bg-white rounded-lg border">🛡️ 運営: @creeper_dev, @MRF_4922</div>
-      </div>
-    </section>
-
-    <section id="page-contact" class="page hidden fade-in">
-      <h1 class="text-2xl font-bold mb-6 border-b pb-2 text-indigo-600">お問い合わせ & 履歴</h1>
-      <div id="contact-guest" class="hidden text-center py-10">
-        <a href="/auth/google" class="px-6 py-3 bg-indigo-600 text-white rounded-lg font-bold">Googleでログイン</a>
-      </div>
-      <div id="contact-user-area" class="hidden space-y-8">
-        <form onsubmit="submitContact(event)" class="bg-white p-6 rounded-xl shadow border">
-          <textarea id="contact-message" rows="4" class="w-full p-3 border rounded-lg mb-3" placeholder="質問・通報・BAN解除申請など..." required></textarea>
-          <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold">送信する</button>
+      <div id="contact-user-area" class="hidden">
+        <form onsubmit="sendContact(event)" class="mb-10">
+          <textarea id="msg" class="w-full p-3 border rounded" placeholder="メッセージを入力..." required></textarea>
+          <button class="w-full bg-indigo-600 text-white py-2 mt-2 rounded">送信</button>
         </form>
-        <div id="my-tickets-list" class="space-y-4"></div>
+        <div id="my-list" class="space-y-4"></div>
       </div>
     </section>
 
-    <section id="page-admin" class="page hidden fade-in">
-      <h1 class="text-2xl font-bold mb-6 text-red-600 border-b">管理パネル</h1>
-      <div id="admin-tickets-list" class="space-y-6"></div>
+    <section id="page-admin" class="page hidden">
+        <h1 class="text-2xl font-bold text-red-600 mb-6">管理パネル</h1>
+        <div id="admin-list" class="space-y-6"></div>
     </section>
   </main>
 
   <script>
-    let user = null;
-    async function checkLogin() {
-      const res = await fetch('/api/user');
-      const data = await res.json();
-      user = data.isLoggedIn ? data.user : null;
-      renderUI();
-    }
-
-    function renderUI() {
-      const userArea = document.getElementById('user-area');
-      const navAdmin = document.getElementById('nav-admin');
-      if (user) {
-        userArea.innerHTML = `<img src="${user.photo}" class="w-8 h-8 rounded-full"><a href="/logout" class="text-xs text-red-500">ログアウト</a>`;
-        if (user.isAdmin) navAdmin.classList.remove('hidden');
+    async function checkUser() {
+      const r = await fetch('/api/user');
+      const d = await r.json();
+      if(d.isLoggedIn) {
+        document.getElementById('user-area').innerHTML = `<img src="${d.user.photo}" class="w-8 h-8 rounded-full">`;
+        if(d.user.isAdmin) document.getElementById('nav-admin').classList.remove('hidden');
         document.getElementById('contact-guest').classList.add('hidden');
         document.getElementById('contact-user-area').classList.remove('hidden');
-        loadMyTickets();
-      } else {
-        userArea.innerHTML = `<a href="/auth/google" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold">ログイン</a>`;
-        document.getElementById('contact-guest').classList.remove('hidden');
-        document.getElementById('contact-user-area').classList.add('hidden');
+        loadMy();
       }
     }
-
     function router(id) {
       document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-      document.getElementById('page-' + id).classList.remove('hidden');
-      if (id === 'admin') loadAdminTickets();
+      document.getElementById('page-'+id).classList.remove('hidden');
+      if(id==='admin') loadAdmin();
     }
-
-    async function submitContact(e) {
+    async function sendContact(e) {
       e.preventDefault();
-      const message = document.getElementById('contact-message').value;
-      await fetch('/api/contact', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ message }) });
-      document.getElementById('contact-message').value = '';
-      loadMyTickets();
+      await fetch('/api/contact', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({message: document.getElementById('msg').value}) });
+      document.getElementById('msg').value = '';
+      loadMy();
     }
-
-    async function loadMyTickets() {
-      const res = await fetch('/api/my-contacts');
-      const tickets = await res.json();
-      document.getElementById('my-tickets-list').innerHTML = tickets.map(t => `
-        <div class="bg-white p-4 rounded-lg shadow-sm border">
-          <div class="text-xs text-gray-400">${new Date(t.createdAt).toLocaleString()}</div>
-          <p class="text-sm my-2">${t.message}</p>
-          ${t.reply ? `<div class="p-3 bg-green-50 border-l-4 border-green-500 text-sm">運営: ${t.reply}</div>` : '<span class="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">返信待ち</span>'}
-        </div>
-      `).join('');
+    async function loadMy() {
+      const r = await fetch('/api/my-contacts');
+      const d = await r.json();
+      document.getElementById('my-list').innerHTML = d.map(t => `<div class="p-4 bg-white border rounded">
+        <p class="text-sm">${t.message}</p>
+        ${t.reply ? `<p class="mt-2 text-green-600 font-bold text-xs">返信: ${t.reply}</p>` : ''}
+      </div>`).join('');
     }
-
-    async function loadAdminTickets() {
-      const res = await fetch('/api/admin/contacts');
-      const tickets = await res.json();
-      document.getElementById('admin-tickets-list').innerHTML = tickets.map(t => `
-        <div class="bg-white p-5 rounded-xl shadow border border-red-100">
-          <div class="flex items-center gap-2 mb-2"><img src="${t.userPhoto}" class="w-6 h-6 rounded-full"><span class="font-bold text-sm">${t.userName}</span></div>
-          <p class="text-sm bg-gray-50 p-3 rounded mb-3">${t.message}</p>
-          <textarea id="reply-${t.id}" class="w-full p-2 border rounded text-sm mb-2" placeholder="返答を入力...">${t.reply || ''}</textarea>
-          <button onclick="saveReply('${t.id}')" class="bg-green-600 text-white text-xs px-4 py-2 rounded">回答を保存</button>
-        </div>
-      `).join('');
+    async function loadAdmin() {
+      const r = await fetch('/api/admin/contacts');
+      const d = await r.json();
+      document.getElementById('admin-list').innerHTML = d.map(t => `<div class="p-4 bg-white border rounded">
+        <p class="font-bold text-xs">${t.userName}</p>
+        <p class="text-sm">${t.message}</p>
+        <input id="rep-${t.id}" class="border p-1 text-sm w-full mt-2" value="${t.reply||''}">
+        <button onclick="saveRep('${t.id}')" class="bg-green-600 text-white text-xs px-2 py-1 mt-1 rounded">保存</button>
+      </div>`).join('');
     }
-
-    async function saveReply(id) {
-      const reply = document.getElementById(`reply-${id}`).value;
-      await fetch(`/api/admin/reply/${id}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ reply }) });
+    async function saveRep(id) {
+      const reply = document.getElementById('rep-'+id).value;
+      await fetch('/api/admin/reply/'+id, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({reply}) });
       alert("保存しました");
-      loadAdminTickets();
     }
-
-    window.addEventListener('DOMContentLoaded', () => { checkLogin(); router('home'); });
+    checkUser();
   </script>
 </body>
 </html>
