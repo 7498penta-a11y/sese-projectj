@@ -1,5 +1,5 @@
 // ==========================================
-// SESE Server - Production Version (Render対応)
+// SESE Server - Discord Webhook & Google Login
 // ==========================================
 require('dotenv').config();
 const express = require('express');
@@ -7,13 +7,12 @@ const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const path = require('path');
+const https = require('https'); // Discordへの送信に使用
 
 const app = express();
-
-// RenderではPORT環境変数が自動で割り当てられます（通常10000番）
 const PORT = process.env.PORT || 3000;
 
-// 本番環境のURL（あなたのRenderのURLに書き換えてください）
+// 本番環境のURL（RenderのURL）
 const CALLBACK_URL = "https://sese-qing.onrender.com/auth/google/callback";
 
 // --- 1. ミドルウェア設定 ---
@@ -21,13 +20,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// セッション設定
 app.use(session({
     secret: process.env.SESSION_SECRET || 'sese_default_secret',
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        secure: false, // Render(http)ではfalse、本来はhttps化してtrueが理想
+        secure: false, 
         maxAge: 24 * 60 * 60 * 1000 
     }
 }));
@@ -40,10 +38,9 @@ passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: CALLBACK_URL,
-    proxy: true // Renderなどのプロキシ環境下で認証を正常に動かすために必要
+    proxy: true 
   },
-  function(accessToken, refreshToken, profile, done) {
-    // ユーザー情報をセッションに渡す
+  (accessToken, refreshToken, profile, done) => {
     return done(null, profile);
   }
 ));
@@ -53,21 +50,20 @@ passport.deserializeUser((obj, done) => done(null, obj));
 
 // --- 3. ルーティング ---
 
-// Googleログイン開始
+// ログイン開始
 app.get('/auth/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
-// Googleログイン コールバック
+// Googleコールバック
 app.get('/auth/google/callback', 
   passport.authenticate('google', { failureRedirect: '/' }),
   (req, res) => {
-    // ログイン成功後、お問い合わせセクションへリダイレクト
     res.redirect('/#contact');
   }
 );
 
-// ユーザー情報取得API
+// ユーザー情報取得
 app.get('/api/user', (req, res) => {
     if (req.isAuthenticated()) {
         res.json({
@@ -83,14 +79,59 @@ app.get('/api/user', (req, res) => {
     }
 });
 
-// お問い合わせ送信API
+// ★ お問い合わせ送信 (Discordへ飛ばす処理)
 app.post('/api/contact', (req, res) => {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ error: 'ログインが必要です' });
     }
+
     const { message } = req.body;
-    console.log(`[お問い合わせ受信] ${req.user.displayName}: ${message}`);
-    res.json({ success: true, message: '運営へ送信されました！' });
+    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+
+    if (!webhookUrl) {
+        console.error("Discord Webhook URLが設定されていません");
+        return res.status(500).json({ error: 'サーバー設定エラー' });
+    }
+
+    // Discordに送る見た目の設定
+    const discordData = JSON.stringify({
+        embeds: [{
+            title: "📩 新しいお問い合わせ",
+            color: 5814783, 
+            fields: [
+                { name: "送信者", value: req.user.displayName, inline: true },
+                { name: "メールアドレス", value: req.user.emails[0].value, inline: true },
+                { name: "メッセージ内容", value: message }
+            ],
+            thumbnail: { url: req.user.photos[0].value },
+            timestamp: new Date()
+        }]
+    });
+
+    // Discord Webhookへ送信
+    const url = new URL(webhookUrl);
+    const options = {
+        hostname: url.hostname,
+        path: url.pathname,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(discordData)
+        }
+    };
+
+    const discordReq = https.request(options, (discordRes) => {
+        console.log(`Discord status: ${discordRes.statusCode}`);
+    });
+
+    discordReq.on('error', (e) => {
+        console.error(`Discord送信エラー: ${e.message}`);
+    });
+
+    discordReq.write(discordData);
+    discordReq.end();
+
+    res.json({ success: true, message: '運営へ送信されました（Discord通知済み）' });
 });
 
 // ログアウト
@@ -101,15 +142,12 @@ app.get('/logout', (req, res, next) => {
     });
 });
 
-// すべてのリクエストに対して index.html を返す (SPA対応)
+// SPA対応
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// --- 4. 起動 ---
+// サーバー起動
 app.listen(PORT, () => {
-    console.log(`--------------------------------------------------`);
-    console.log(`✅ SESE Server is running on Port: ${PORT}`);
-    console.log(`🔗 URL: ${CALLBACK_URL}`);
-    console.log(`--------------------------------------------------`);
+    console.log(`✅ SESE Server running on port ${PORT}`);
 });
