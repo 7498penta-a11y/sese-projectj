@@ -3,267 +3,258 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SESE SERVER | 公式コミュニティハブ</title>
+  <title>SESE鯖 公式サイト</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', 'Noto Sans JP', sans-serif; word-break: break-word; }
-    .fade-in { animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .nav-active { color: #4f46e5; font-weight: 900; border-bottom: 3px solid #4f46e5; }
-    .discord-gradient { background: linear-gradient(135deg, #5865F2 0%, #404EED 100%); }
-    .owner-card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid #334155; }
-    .glass-effect { background: rgba(255, 255, 255, 0.8); backdrop-blur: 12px; border: 1px solid rgba(255, 255, 255, 0.3); }
+    body { font-family: 'Noto Sans JP', sans-serif; word-break: break-all; }
+    .fade-in { animation: fadeIn 0.5s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .nav-active { color: #4f46e5; border-bottom: 2px solid #4f46e5; }
+    .bg-discord { background-color: #5865F2; }
+    .bg-main-dark { background-color: #1a1c23; }
+    /* スクロールバーの調整 */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
   </style>
 </head>
-<body class="min-h-screen bg-[#f8fafc] text-slate-900 leading-relaxed">
+<body class="min-h-screen bg-slate-50 text-slate-800">
 
-  <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-slate-200">
-    <div class="max-w-7xl mx-auto px-6">
+  <header class="bg-white/95 backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 md:px-6">
       <div class="flex items-center justify-between py-4">
-        <div class="flex items-center gap-4 cursor-pointer group" onclick="router('home')">
-          <div class="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-2xl group-hover:scale-105 transition-all">
-            <span class="font-black text-xl tracking-tighter">S</span>
+        <div class="flex items-center gap-3 cursor-pointer" onclick="router('home')">
+          <div class="w-10 h-10 rounded-xl bg-main-dark flex items-center justify-center text-white shadow-lg">
+            <span class="font-bold text-xl">S</span>
           </div>
-          <div>
-            <div class="font-black text-xl tracking-tight text-slate-900">SESE SERVER</div>
-            <div class="text-[9px] text-indigo-600 font-black uppercase tracking-[0.3em]">Owner: MRF_4922</div>
-          </div>
+          <div class="font-black text-xl tracking-tight text-slate-900">SESE鯖</div>
         </div>
 
-        <nav class="hidden lg:flex items-center gap-6">
-          <button onclick="router('home')" class="nav-btn text-sm font-bold text-slate-500 hover:text-slate-900 transition-all">Home</button>
-          <button onclick="router('guidelines')" class="nav-btn text-sm font-bold text-slate-500 hover:text-slate-900 transition-all">Rules/Info</button>
-          <button onclick="router('staff')" class="nav-btn text-sm font-bold text-slate-500 hover:text-slate-900 transition-all">Management</button>
-          <button onclick="router('contact')" class="nav-btn text-sm font-bold text-slate-500 hover:text-slate-900 transition-all">Contact</button>
+        <nav class="hidden md:flex items-center gap-8">
+          <button onclick="router('home')" class="nav-btn text-sm font-bold text-slate-500 hover:text-indigo-600 transition-all">ホーム</button>
+          <button onclick="router('guidelines')" class="nav-btn text-sm font-bold text-slate-500 hover:text-indigo-600 transition-all">ガイドライン</button>
+          <button onclick="router('staff')" class="nav-btn text-sm font-bold text-slate-500 hover:text-indigo-600 transition-all">運営紹介</button>
+          <button onclick="router('contact')" class="nav-btn text-sm font-bold text-slate-500 hover:text-indigo-600 transition-all">お問い合わせ</button>
         </nav>
 
-        <div class="flex items-center gap-4">
-          <a href="https://discord.gg/WEWgXFss9p" target="_blank" class="discord-gradient text-white px-6 py-2.5 rounded-xl text-sm font-black shadow-lg hover:shadow-indigo-500/20 transition-all flex items-center gap-2">
-            Discord Join
+        <div class="flex items-center gap-3">
+          <a href="https://discord.gg/WEWgXFss9p" target="_blank" class="bg-discord text-white px-5 py-2 rounded-lg text-sm font-bold hover:opacity-90 transition shadow-md flex items-center gap-2">
+            Discordへ参加
           </a>
-          <div id="user-area" class="border-l pl-4 border-slate-200"></div>
-          <button id="mobile-menu-btn" class="lg:hidden text-slate-600">☰</button>
+          <div id="user-area"></div>
         </div>
       </div>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-6 py-12">
+  <main class="max-w-5xl mx-auto px-4 py-10">
     
     <section id="page-home" class="page fade-in">
-      <div class="relative overflow-hidden rounded-[3rem] bg-slate-900 p-12 md:p-24 text-center shadow-3xl mb-16">
+      <div class="rounded-[2rem] bg-main-dark p-10 md:p-20 text-center shadow-2xl mb-12 text-white relative overflow-hidden">
         <div class="relative z-10">
-          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest mb-8">
-            <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span> Official Community Platform
-          </div>
-          <h1 class="text-5xl md:text-8xl font-black text-white mb-8 leading-[1.1] tracking-tighter">
-            創造と交流の、<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">中心地へ。</span>
+          <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">
+            自由な雑談と、<br>確かな安心を。
           </h1>
-          <p class="text-slate-400 text-lg md:text-xl mb-12 max-w-2xl mx-auto font-medium leading-relaxed">
-            オーナー MRF_4922 率いるSESE鯖は、匿名性を超えた信頼と、<br class="hidden md:block">最高峰のエンターテインメントを提供するDiscordコミュニティです。
+          <p class="text-slate-400 text-lg mb-10 max-w-2xl mx-auto font-medium">
+            SESE鯖は、オーナー sese & MRF を中心に運営される、<br class="hidden md:block">
+            誰もが安心して交流を楽しめるDiscordサーバーです。
           </p>
-          <div class="flex flex-col sm:flex-row gap-6 justify-center">
-            <a href="https://discord.gg/WEWgXFss9p" target="_blank" class="discord-gradient px-12 py-5 rounded-2xl text-white font-black text-xl shadow-2xl hover:-translate-y-1 transition-all">
-              サーバーに参加する
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="https://discord.gg/WEWgXFss9p" target="_blank" class="bg-discord px-10 py-4 rounded-xl text-white font-bold text-lg hover:scale-105 transition-all">
+              サーバーに入る
             </a>
-            <button onclick="router('guidelines')" class="px-12 py-5 bg-white text-slate-900 rounded-2xl font-black text-xl hover:bg-slate-100 transition-all">
-              詳細を確認
+            <button onclick="router('guidelines')" class="px-10 py-4 bg-white/10 rounded-xl text-white font-bold text-lg hover:bg-white/20 transition-all border border-white/20">
+              ルールを見る
             </button>
-          </div>
-        </div>
-        <div class="absolute -top-24 -left-24 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px]"></div>
-        <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px]"></div>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-10">
-        <div class="group">
-          <div class="text-4xl mb-6 group-hover:scale-110 transition-transform inline-block">🔒</div>
-          <h3 class="font-black text-2xl mb-4">鉄壁のセキュリティ</h3>
-          <p class="text-slate-500 leading-relaxed text-sm">独自開発のセキュリティシステムと、MRF_4922オーナー自らが監修した管理体制により、あらゆる荒らし行為を完全に遮断します。</p>
-        </div>
-        <div class="group">
-          <div class="text-4xl mb-6 group-hover:scale-110 transition-transform inline-block">🚀</div>
-          <h3 class="font-black text-2xl mb-4">最速のトレンド</h3>
-          <p class="text-slate-500 leading-relaxed text-sm">常に最新のDiscord機能やBOT、WEB連携を導入。技術的な進歩を止めない、進化し続けるサーバーです。</p>
-        </div>
-        <div class="group">
-          <div class="text-4xl mb-6 group-hover:scale-110 transition-transform inline-block">🤝</div>
-          <h3 class="font-black text-2xl mb-4">確かなコミュニティ</h3>
-          <p class="text-slate-500 leading-relaxed text-sm">「数は力なり、質は宝なり」。量より質を重視した厳格なモデレーションにより、不快感のない健全な雑談環境を実現しています。</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="page-guidelines" class="page hidden fade-in space-y-12">
-      <div class="text-center space-y-4">
-        <h2 class="text-5xl font-black tracking-tighter">GUIDELINES</h2>
-        <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">憲章と規約</p>
-      </div>
-
-      <div class="glass-effect rounded-[3rem] p-10 md:p-16 space-y-16 shadow-2xl">
-        <div class="space-y-6">
-          <h3 class="text-2xl font-black text-indigo-600 flex items-center gap-4">
-            <span class="w-10 h-1 bg-indigo-600"></span> 01. サーバー基本理念
-          </h3>
-          <p class="text-slate-700 leading-loose">
-            SESE SERVERは、全ての利用者が対等であり、互いの創造性と尊厳を尊重する場であることを誓います。
-            オーナーおよび管理チームは、この秩序を守るために以下の法規（ルール）を制定します。
-          </p>
-        </div>
-
-        <div class="space-y-8">
-          <h3 class="text-2xl font-black text-red-600 flex items-center gap-4">
-            <span class="w-10 h-1 bg-red-600"></span> 02. 絶対禁止事項 (Critical Rules)
-          </h3>
-          <div class="grid md:grid-cols-2 gap-6">
-            <div class="p-6 bg-red-50/50 rounded-2xl border border-red-100">
-              <h4 class="font-black text-red-800 mb-2">対人トラブル</h4>
-              <p class="text-xs text-red-700/80 leading-relaxed">
-                特定の個人・団体に対する誹謗中傷、差別、晒し行為、およびハラスメント。
-                ボイスチャットでの叫び、暴言、不快な音の再生もこれに含まれます。
-              </p>
-            </div>
-            <div class="p-6 bg-red-50/50 rounded-2xl border border-red-100">
-              <h4 class="font-black text-red-800 mb-2">宣伝・ビジネス</h4>
-              <p class="text-xs text-red-700/80 leading-relaxed">
-                DMを利用した無差別な勧誘、他サーバーの無許可宣伝、および政治・宗教・ネットワークビジネスへの勧誘行為。
-              </p>
-            </div>
-            <div class="p-6 bg-red-50/50 rounded-2xl border border-red-100">
-              <h4 class="font-black text-red-800 mb-2">システム妨害</h4>
-              <p class="text-xs text-red-700/80 leading-relaxed">
-                サーバーの負荷を高めるスパム行為、BOTのバグ利用、およびDiscord利用規約（TOS）に違反するあらゆる行為。
-              </p>
-            </div>
-            <div class="p-6 bg-red-50/50 rounded-2xl border border-red-100">
-              <h4 class="font-black text-red-800 mb-2">NSFW / 不適切内容</h4>
-              <p class="text-xs text-red-700/80 leading-relaxed">
-                グロテスク、性的、または過度に暴力的なコンテンツの送信。これらは即座にBANの対象となります。
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-8 bg-slate-900 rounded-[2rem] text-white">
-          <h3 class="text-xl font-black mb-4">運営の裁量について</h3>
-          <p class="text-sm text-slate-400 leading-relaxed">
-            本規約に明文の規定がない事項であっても、オーナーおよび管理人が「サーバーの秩序を著しく乱す」と判断した場合、
-            独自の裁量により必要な措置（タイムアウト、キック、バン）を講じることができるものとします。
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section id="page-staff" class="page hidden fade-in space-y-12">
-      <div class="text-center">
-        <h2 class="text-4xl font-black mb-2 tracking-tight">MANAGEMENT</h2>
-        <p class="text-slate-400 font-bold text-xs tracking-widest uppercase">運営組織</p>
-      </div>
-
-      <div class="max-w-2xl mx-auto">
-        <div class="owner-card p-10 rounded-[2.5rem] relative overflow-hidden text-center group">
-          <div class="relative z-10">
-            <div class="w-24 h-24 bg-gradient-to-tr from-indigo-500 to-pink-500 rounded-full mx-auto mb-6 flex items-center justify-center text-white text-4xl shadow-2xl group-hover:scale-110 transition-transform">
-              👑
-            </div>
-            <h3 class="text-3xl font-black text-white mb-2 tracking-tighter uppercase">MRF_4922</h3>
-            <p class="text-indigo-400 font-black text-xs uppercase tracking-[0.5em] mb-4">Server Owner</p>
-            <p class="text-slate-400 text-sm max-w-sm mx-auto">
-              SESE SERVERの創設者。サーバーの最高意思決定権を持ち、<br>コミュニティの発展と秩序の維持を指揮します。
-            </p>
-          </div>
-          <div class="absolute top-0 right-0 p-8 opacity-10">
-            <span class="text-8xl font-black text-white">OWNER</span>
           </div>
         </div>
       </div>
 
       <div class="grid md:grid-cols-2 gap-8">
-        <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-200">
-          <h4 class="text-lg font-black mb-8 flex items-center gap-3 text-slate-800">
-            <span class="w-1.5 h-6 bg-indigo-600 rounded-full"></span> Admin Team
-          </h4>
-          <div class="space-y-3">
-            <div class="p-5 bg-slate-50 rounded-2xl flex justify-between items-center border border-slate-100">
-              <span class="font-black text-slate-900">sese_PAP_1122</span>
-              <span class="text-[9px] font-black bg-slate-900 text-white px-3 py-1 rounded-full uppercase">Management</span>
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+          <h3 class="font-bold text-xl mb-3 flex items-center gap-2">
+            <span class="text-indigo-600">●</span> 健全なコミュニティ
+          </h3>
+          <p class="text-slate-600 text-sm">独自のガイドラインに基づき、暴言や荒らし行為を徹底して管理しています。初めての方でも安心してご参加いただけます。</p>
+        </div>
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+          <h3 class="font-bold text-xl mb-3 flex items-center gap-2">
+            <span class="text-indigo-600">●</span> 透明性のある運営
+          </h3>
+          <p class="text-slate-600 text-sm">権限の分散と相互監視により、公平な運営を行っています。ユーザーの皆様の意見を大切にする風通しの良い環境です。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-guidelines" class="page hidden fade-in max-w-4xl mx-auto">
+      <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-slate-900 p-8 text-white">
+          <h2 class="text-3xl font-black tracking-tight">SESE鯖ガイドライン</h2>
+          <p class="text-slate-400 mt-2 text-sm">この規約は、全ての参加者に適用される重要なルールです。</p>
+        </div>
+        
+        <div class="p-8 md:p-12 space-y-12">
+          <section>
+            <h3 class="text-xl font-black border-l-4 border-indigo-600 pl-4 mb-4">第一章（定義）</h3>
+            <p class="text-slate-700 font-medium">第一条：本規約は、seseのDiscordサーバー（以降「この鯖」）での規則を指します。</p>
+          </section>
+
+          <section class="space-y-4">
+            <h3 class="text-xl font-black border-l-4 border-indigo-600 pl-4 mb-4">第二章（スパムについて）</h3>
+            <div class="bg-slate-50 p-6 rounded-2xl">
+              <h4 class="font-bold mb-4 text-slate-900">第二条（禁止行為の定義）</h4>
+              <ul class="space-y-3 text-sm text-slate-700">
+                <li>・サブ垢やbot等を利用したサーバー人数の膨張（多重アカウント）</li>
+                <li>・誤解を招く情報の共有（フェイクニュース）</li>
+                <li>・身元を偽る行為（なりすまし）</li>
+                <li>・著作権侵害コンテンツ（チートや海賊版）に関する発言</li>
+                <li>・暴言、侮辱、威圧的態度、人格攻撃</li>
+                <li>・無意味な連続投稿、過度なメンション、スパム行為</li>
+                <li>・Discord利用規約に違反する全ての行為</li>
+              </ul>
             </div>
-            <div class="p-5 bg-slate-50 rounded-2xl font-bold text-slate-700">creeper_dev</div>
-            <div class="p-5 bg-slate-50 rounded-2xl font-bold text-slate-700">supernova</div>
+            
+            <div class="bg-red-50 p-6 rounded-2xl border border-red-100">
+              <h4 class="font-bold mb-4 text-red-900">第三条（罰則）</h4>
+              <p class="text-xs text-red-700 mb-4 font-bold">※悪質な違反は運営判断で段階を飛ばすことがあります。</p>
+              <div class="space-y-4 text-sm">
+                <div class="flex gap-4">
+                  <span class="font-bold text-red-600">1</span>
+                  <p><strong>タイムアウト：</strong> 暴言、チート発言等。一時的に発言やVCを制限します。</p>
+                </div>
+                <div class="flex gap-4">
+                  <span class="font-bold text-red-600">2</span>
+                  <p><strong>キック：</strong> スパム、意味のない長文等。強制退出（再参加は可能）。</p>
+                </div>
+                <div class="flex gap-4">
+                  <span class="font-bold text-red-600">3</span>
+                  <p><strong>BAN：</strong> Ddos攻撃、荒らしBOT等。永久追放されます。</p>
+                </div>
+                <div class="flex gap-4">
+                  <span class="font-bold text-red-600">4</span>
+                  <p><strong>即時BAN：</strong> 他鯖での問題行動が本サーバーでも見られた場合。</p>
+                </div>
+              </div>
+              <p class="mt-6 text-xs text-slate-500">※キックを5回受けた後の違反、または累積の違反により罰則が強化されます。</p>
+            </div>
+          </section>
+
+          <section class="grid md:grid-cols-2 gap-8">
+            <div class="bg-slate-50 p-6 rounded-2xl">
+              <h3 class="font-black mb-4 text-indigo-700">第三章（相互敬意）</h3>
+              <p class="text-sm text-slate-600 leading-relaxed">ハラスメント行為、個人への脅迫行為、および本人の同意のない個人情報の共有（晒し）は厳格に禁止されています。</p>
+            </div>
+            <div class="bg-slate-50 p-6 rounded-2xl">
+              <h3 class="font-black mb-4 text-indigo-700">第四章（その他禁止事項）</h3>
+              <p class="text-sm text-slate-600 leading-relaxed">金銭トラブルについて運営は関与しません。また、外部（他鯖やSNS）のトラブルを本サーバーへ持ち込むことを禁止します。本規約はオーナーを含む全員に適用されます。</p>
+            </div>
+          </section>
+
+          <section class="space-y-6">
+            <h3 class="text-xl font-black border-l-4 border-indigo-600 pl-4 mb-4">第五章（役割と立場）</h3>
+            <div class="space-y-4 text-sm text-slate-700 leading-loose">
+              <div class="p-6 bg-slate-50 rounded-2xl">
+                <h4 class="font-bold mb-2">● オーナーの権限（第十条）</h4>
+                <p>規約の制定・改正・廃止を行う最高権限者です。最終決定権を持ちますが、独裁を避けサーバー全体の利益を優先する責務を負います。</p>
+              </div>
+              <div class="p-6 bg-slate-50 rounded-2xl">
+                <h4 class="font-bold mb-2">● アドミンの役割（第十一条・第十二条）</h4>
+                <p>規約に基づき日常的な管理（チャンネル・ロール・BOT・イベント等）を行います。違反行為の事後確認や処分の適用も担当します。</p>
+              </div>
+              <div class="p-6 bg-slate-900 text-white rounded-2xl font-medium">
+                <h4 class="font-bold mb-2 text-indigo-400 underline">重要：権限の監視（第十三条〜第十六条）</h4>
+                <p>各権限は相互に監視されます。アドミンの過半数が賛成すればオーナーを解任でき、常連の全員が賛成すればアドミンを解任できる仕組みを導入し、偏った運営を防止します。</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-staff" class="page hidden fade-in space-y-10">
+      <div class="text-center">
+        <h2 class="text-3xl font-black mb-4 text-slate-900">運営チーム</h2>
+        <p class="text-slate-500 font-bold">サーバーの維持と管理を担当するメンバーです。</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+          <h3 class="text-lg font-black mb-6 flex items-center gap-2 text-indigo-600">
+            👑 共同オーナー
+          </h3>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <span class="font-bold text-slate-800">sese</span>
+              <span class="text-[10px] bg-indigo-600 text-white px-2 py-1 rounded">OWNER</span>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <span class="font-bold text-slate-800">MRF_4922</span>
+              <span class="text-[10px] bg-indigo-600 text-white px-2 py-1 rounded">OWNER</span>
+            </div>
           </div>
         </div>
 
-        <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-200">
-          <h4 class="text-lg font-black mb-8 flex items-center gap-3 text-slate-800">
-            <span class="w-1.5 h-6 bg-purple-600 rounded-full"></span> Safety Unit
-          </h4>
-          <div class="space-y-3">
-            <div class="p-5 bg-purple-50 rounded-2xl flex justify-between items-center border border-purple-100">
-              <span class="font-black text-purple-900">やも</span>
-              <span class="text-[9px] font-black bg-purple-600 text-white px-3 py-1 rounded-full uppercase tracking-widest">Moderator</span>
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+          <h3 class="text-lg font-black mb-6 flex items-center gap-2 text-slate-700">
+            🛡️ アドミン（運営管理）
+          </h3>
+          <div class="space-y-4">
+            <div class="flex justify-between p-4 bg-slate-50 rounded-xl">
+              <span class="font-bold">7498</span>
+              <span class="text-[10px] bg-slate-400 text-white px-2 py-1 rounded">ADMIN</span>
             </div>
-            <div class="p-5 bg-slate-50 rounded-2xl font-bold text-slate-700">kuroneko22_22_sabu</div>
-            <div class="p-5 bg-slate-50 rounded-2xl font-bold text-slate-700">yshi</div>
+            <div class="p-4 bg-slate-50 rounded-xl font-bold">sese_PAP_1122</div>
+            <div class="p-4 bg-slate-50 rounded-xl font-bold">creeper_dev</div>
+            <div class="p-4 bg-slate-50 rounded-xl font-bold">supernova</div>
           </div>
+        </div>
+      </div>
+      
+      <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 max-w-2xl mx-auto">
+        <h3 class="text-lg font-black mb-6 flex items-center gap-2 text-purple-600">
+          ⚖️ モデレーター（監視担当）
+        </h3>
+        <div class="grid grid-cols-2 gap-4 text-sm font-bold">
+          <div class="p-4 bg-slate-50 rounded-xl">やも</div>
+          <div class="p-4 bg-slate-50 rounded-xl">kuroneko22_22_sabu</div>
+          <div class="p-4 bg-slate-50 rounded-xl">yshi</div>
         </div>
       </div>
     </section>
 
     <section id="page-contact" class="page hidden fade-in max-w-2xl mx-auto">
-      <div class="text-center mb-10">
-        <h2 class="text-4xl font-black tracking-tighter mb-4 uppercase">Direct Contact</h2>
-        <p class="text-slate-500 font-bold text-sm">運営チームへの正式な問い合わせ窓口です。</p>
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-black mb-2">お問い合わせ</h2>
+        <p class="text-slate-500">運営チームへメッセージを送信します。</p>
       </div>
       
       <div id="contact-area">
-        <div id="contact-guest" class="bg-white p-12 rounded-[3rem] shadow-2xl text-center border border-slate-200">
-          <div class="w-24 h-24 bg-slate-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-inner text-4xl rotate-3">📩</div>
-          <h3 class="text-2xl font-black mb-4">セキュリティ認証</h3>
-          <p class="text-slate-500 mb-10 text-sm leading-relaxed">
-            お問い合わせの送信にはGoogleアカウントでの本人確認が必要です。<br>
-            送信された内容はDiscord上の管理チャンネルへ即座に通知されます。
-          </p>
-          <a href="/auth/google" class="inline-flex items-center gap-4 px-12 py-5 bg-slate-900 text-white rounded-2xl font-black hover:bg-slate-800 transition-all shadow-xl active:scale-95">
-            <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" class="w-6 h-6">
-            Google認証を開始
+        <div id="contact-guest" class="bg-white p-12 rounded-3xl shadow-xl text-center border border-slate-200">
+          <p class="text-slate-600 mb-8">いたずら防止のため、Googleアカウントでのログインが必要です。</p>
+          <a href="/auth/google" class="inline-flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition shadow-lg">
+            Googleでログイン
           </a>
         </div>
 
-        <div id="contact-form" class="hidden space-y-6">
-          <div class="bg-slate-900 text-white p-8 rounded-[2.5rem] flex items-center gap-6 shadow-2xl">
-            <img id="u-photo" src="" class="w-16 h-16 rounded-2xl border-2 border-white/20">
-            <div>
-              <div class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1 italic">Verified Sender</div>
-              <div class="text-2xl font-black" id="u-name"></div>
-            </div>
+        <div id="contact-form" class="hidden space-y-4">
+          <div class="bg-indigo-50 p-4 rounded-xl flex items-center gap-4">
+            <img id="u-photo" src="" class="w-12 h-12 rounded-full border-2 border-white">
+            <div class="font-bold" id="u-name"></div>
           </div>
-          <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-200 space-y-6">
-            <textarea id="c-msg" rows="6" class="w-full p-6 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 transition-all font-bold text-slate-700" placeholder="内容を具体的にお書きください（要望、報告、提携依頼など）"></textarea>
-            <button onclick="sendContact()" id="s-btn" class="w-full py-6 discord-gradient text-white font-black text-lg rounded-2xl shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50">
-              メッセージを送信
-            </button>
-          </div>
+          <textarea id="c-msg" rows="5" class="w-full p-5 bg-white border border-slate-300 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-medium" placeholder="内容を入力してください..."></textarea>
+          <button onclick="sendContact()" id="s-btn" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg transition-all">
+            送信する
+          </button>
         </div>
       </div>
     </section>
 
   </main>
 
-  <footer class="mt-32 border-t border-slate-200 bg-white py-16">
-    <div class="max-w-7xl mx-auto px-6 flex flex-col items-center text-center gap-8">
-      <div class="flex items-center gap-4">
-        <div class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white text-xs font-bold">S</div>
-        <span class="font-black tracking-widest text-slate-900">SESE SERVER OFFICIAL</span>
-      </div>
-      <p class="text-slate-400 text-xs font-bold leading-relaxed max-w-sm uppercase tracking-widest">
-        Designed for the community, by the community. <br>
-        &copy; 2026 SESE SERVER PROJECT. OWNER: MRF_4922.
-      </p>
-      <div class="flex gap-10">
-        <a href="https://discord.gg/WEWgXFss9p" class="text-indigo-600 font-black text-sm uppercase tracking-widest hover:text-indigo-800 transition-colors">Discord</a>
-        <button onclick="router('guidelines')" class="text-slate-400 font-black text-sm uppercase tracking-widest hover:text-slate-900 transition-colors">Terms</button>
-      </div>
+  <footer class="mt-20 border-t border-slate-200 bg-white py-10 text-center">
+    <div class="text-slate-400 text-xs font-bold tracking-widest uppercase">
+      &copy; 2026 SESE SERVER. <br class="md:hidden"> オーナー: sese & MRF_4922
     </div>
   </footer>
 
@@ -278,7 +269,7 @@
       const btn = document.querySelector(`button[onclick="router('${p}')"]`);
       if(btn) btn.classList.add('nav-active');
       window.location.hash = p;
-      window.scrollTo({top: 0, behavior: 'smooth'});
+      window.scrollTo(0, 0);
     }
 
     async function checkLogin() {
@@ -288,28 +279,23 @@
         const ua = document.getElementById('user-area');
         if (d.isLoggedIn) {
           user = d.user;
-          ua.innerHTML = `
-            <div class="flex items-center gap-3">
-              <img src="${user.photo}" class="w-10 h-10 rounded-xl shadow-md border-2 border-white">
-              <a href="/logout" class="text-[10px] font-black text-slate-400 hover:text-red-600 transition-colors uppercase tracking-[0.2em]">Logout</a>
-            </div>`;
+          ua.innerHTML = `<div class="flex items-center gap-2"><img src="${user.photo}" class="w-8 h-8 rounded-full border"><a href="/logout" class="text-[10px] text-red-500 font-bold hover:underline">ログアウト</a></div>`;
           document.getElementById('contact-guest').classList.add('hidden');
           document.getElementById('contact-form').classList.remove('hidden');
           document.getElementById('u-name').innerText = user.name;
           document.getElementById('u-photo').src = user.photo;
         } else {
-          ua.innerHTML = `<a href="/auth/google" class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em] hover:text-indigo-900">Verify Account</a>`;
+          ua.innerHTML = `<a href="/auth/google" class="text-xs font-bold text-indigo-600 hover:underline">ログイン</a>`;
         }
-      } catch(e) { console.warn("Session check failed."); }
+      } catch(e) {}
     }
 
     async function sendContact() {
       const msg = document.getElementById('c-msg').value;
-      if(!msg.trim()) return;
+      if(!msg.trim()) return alert('内容を入力してください');
       const btn = document.getElementById('s-btn');
       btn.disabled = true;
-      btn.innerHTML = `<span class="animate-pulse">TRANSMITTING...</span>`;
-      
+      btn.innerText = '送信中...';
       try {
         const r = await fetch('/api/contact', {
           method: 'POST',
@@ -318,12 +304,12 @@
         });
         const res = await r.json();
         if(res.success) {
-          alert('✅ 送信完了。Discordを確認してください。');
+          alert('送信が完了しました。Discordを確認してください。');
           document.getElementById('c-msg').value = '';
         }
-      } catch(e) { alert('送信エラー'); }
+      } catch(e) { alert('送信に失敗しました'); }
       btn.disabled = false;
-      btn.innerText = 'メッセージを送信';
+      btn.innerText = '送信する';
     }
 
     window.onload = () => {
