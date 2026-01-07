@@ -11,7 +11,8 @@ app.use(express.static('public'));
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 
-// --- データの保存場所（ここがサーバーのメモリです） ---
+// --- データの保存場所（メモリ上の配列） ---
+// サーバー再起動でリセットされます
 let allMessages = []; 
 
 app.use(session({
@@ -42,16 +43,20 @@ passport.use(new GoogleStrategy({
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
-// ユーザー情報
+// ユーザー情報取得API
 app.get('/api/user', (req, res) => {
   if (req.isAuthenticated()) {
-    res.json({ isLoggedIn: true, user: req.user, isAdmin: req.user.email === ADMIN_EMAIL });
+    res.json({ 
+      isLoggedIn: true, 
+      user: req.user, 
+      isAdmin: req.user.email === ADMIN_EMAIL 
+    });
   } else {
     res.json({ isLoggedIn: false });
   }
 });
 
-// メッセージ送信
+// お問い合わせ送信API
 app.post('/api/contact', async (req, res) => {
   if (!req.isAuthenticated()) return res.status(401).json({ error: 'ログインが必要です' });
   
@@ -66,11 +71,18 @@ app.post('/api/contact', async (req, res) => {
 
   allMessages.push(newMessage);
 
-  // Discordへバックアップとして通知
+  // バックアップとしてDiscordへ通知（任意）
   if (process.env.DISCORD_WEBHOOK_URL) {
     try {
       await axios.post(process.env.DISCORD_WEBHOOK_URL, {
-        content: `📩 **新着メッセージ**: ${req.user.name}さんより\n内容: ${req.body.message}`
+        embeds: [{
+          title: "📩 新着メッセージ (メモリ保存中)",
+          color: 5814783,
+          fields: [
+            { name: "ユーザー", value: req.user.name, inline: true },
+            { name: "内容", value: req.body.message }
+          ]
+        }]
       });
     } catch (e) { console.error("Discord通知失敗"); }
   }
@@ -78,14 +90,14 @@ app.post('/api/contact', async (req, res) => {
   res.json({ success: true });
 });
 
-// 自分のメッセージ取得
+// 自分のメッセージと回答を取得
 app.get('/api/my-messages', (req, res) => {
   if (!req.isAuthenticated()) return res.json({ messages: [] });
   const mine = allMessages.filter(m => m.email === req.user.email);
   res.json({ messages: mine });
 });
 
-// 【管理用】全メッセージ取得
+// 【運営用】全メッセージ取得
 app.get('/api/admin/messages', (req, res) => {
   if (req.isAuthenticated() && req.user.email === ADMIN_EMAIL) {
     res.json({ messages: allMessages });
@@ -94,7 +106,7 @@ app.get('/api/admin/messages', (req, res) => {
   }
 });
 
-// 【管理用】返信
+// 【運営用】返信書き込み
 app.post('/api/admin/reply', (req, res) => {
   if (req.isAuthenticated() && req.user.email === ADMIN_EMAIL) {
     const { messageId, replyContent } = req.body;
@@ -103,14 +115,16 @@ app.post('/api/admin/reply', (req, res) => {
       msg.reply = replyContent;
       res.json({ success: true });
     } else {
-      res.status(404).json({ error: 'Not Found' });
+      res.status(404).json({ error: 'Message not found' });
     }
   } else {
     res.status(403).json({ error: 'Forbidden' });
   }
 });
 
-app.get('/logout', (req, res) => { req.logout(() => res.redirect('/')); });
+app.get('/logout', (req, res) => {
+  req.logout(() => res.redirect('/'));
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
