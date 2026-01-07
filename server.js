@@ -1,153 +1,127 @@
-// ==========================================
-// SESE Server - Discord Webhook & Google Login
-// ==========================================
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const path = require('path');
-const https = require('https'); // Discordへの送信に使用
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// 本番環境のURL（RenderのURL）
-const CALLBACK_URL = "https://sese-qing.onrender.com/auth/google/callback";
+// --- 簡易データベース（本番ではMongoDBやSQLを推奨） ---
+let contacts = []; // お問い合わせデータ保存用
 
-// --- 1. ミドルウェア設定 ---
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'sese_default_secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { 
-        secure: false, 
-        maxAge: 24 * 60 * 60 * 1000 
-    }
-}));
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-// --- 2. Google OAuth設定 ---
+// --- Passportの設定 (Googleログイン) ---
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: CALLBACK_URL,
-    proxy: true 
+    callbackURL: process.env.CALLBACK_URL
   },
   (accessToken, refreshToken, profile, done) => {
-    return done(null, profile);
+    // ユーザー情報を整理
+    const user = {
+      id: profile.id,
+      name: profile.displayName,
+      email: profile.emails[0].value,
+      photo: profile.photos[0].value
+    };
+    return done(null, user);
   }
 ));
 
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
-// --- 3. ルーティング ---
+// --- ミドルウェア設定 ---
+app.use(express.json());
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(express.static('public')); // HTMLファイルを置くフォルダ
 
-// ログイン開始
-app.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
+// --- 管理者判定用ヘルパー ---
+const isAdmin = (user) => {
+  if (!user || !user.email) return false;
+  const adminList = process.env.ADMIN_EMAILS.split(',');
+  return adminList.includes(user.email);
+};
 
-// Googleコールバック
+// --- APIルート ---
+
+// ログイン状態と管理者フラグを返す
+app.get('/api/user', (req, res) => {
+  if (!req.isAuthenticated()) return res.json({ isLoggedIn: false });
+  res.json({
+    isLoggedIn: true,
+    user: {
+      ...req.user,
+      isAdmin: isAdmin(req.user)
+    }
+  });
+});
+
+// お問い合わせ送信
+app.post('/api/contact', (req, res) => {
+  if (!req.isAuthenticated()) return res.status(401).json({ error: 'ログインが必要です' });
+  
+  const newContact = {
+    id: Date.now().toString(),
+    userId: req.user.id,
+    userName: req.user.name,
+    userEmail: req.user.email,
+    userPhoto: req.user.photo,
+    message: req.body.message,
+    reply: null,
+    createdAt: new Date()
+  };
+  
+  contacts.push(newContact);
+  res.json({ success: true, message: '送信が完了しました' });
+});
+
+// 自分の履歴取得
+app.get('/api/my-contacts', (req, res) => {
+  if (!req.isAuthenticated()) return res.status(401).send();
+  const myData = contacts.filter(c => c.userId === req.user.id);
+  res.json(myData);
+});
+
+// 【管理者専用】全件取得
+app.get('/api/admin/contacts', (req, res) => {
+  if (!isAdmin(req.user)) return res.status(403).send('Forbidden');
+  res.json(contacts);
+});
+
+// 【管理者専用】返信の保存
+app.post('/api/admin/reply/:id', (req, res) => {
+  if (!isAdmin(req.user)) return res.status(403).send('Forbidden');
+  
+  const ticket = contacts.find(c => c.id === req.params.id);
+  if (ticket) {
+    ticket.reply = req.body.reply;
+    res.json({ success: true });
+  } else {
+    res.status(404).send('Not found');
+  }
+});
+
+// --- 認証ルート ---
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
 app.get('/auth/google/callback', 
   passport.authenticate('google', { failureRedirect: '/' }),
-  (req, res) => {
-    res.redirect('/#contact');
-  }
+  (req, res) => res.redirect('/#contact') // ログイン後にお問い合わせページへ
 );
 
-// ユーザー情報取得
-app.get('/api/user', (req, res) => {
-    if (req.isAuthenticated()) {
-        res.json({
-            isLoggedIn: true,
-            user: {
-                name: req.user.displayName,
-                email: req.user.emails[0].value,
-                photo: req.user.photos[0].value
-            }
-        });
-    } else {
-        res.json({ isLoggedIn: false });
-    }
-});
-
-// ★ お問い合わせ送信 (Discordへ飛ばす処理)
-app.post('/api/contact', (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.status(401).json({ error: 'ログインが必要です' });
-    }
-
-    const { message } = req.body;
-    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-
-    if (!webhookUrl) {
-        console.error("Discord Webhook URLが設定されていません");
-        return res.status(500).json({ error: 'サーバー設定エラー' });
-    }
-
-    // Discordに送る見た目の設定
-    const discordData = JSON.stringify({
-        embeds: [{
-            title: "📩 新しいお問い合わせ",
-            color: 5814783, 
-            fields: [
-                { name: "送信者", value: req.user.displayName, inline: true },
-                { name: "メールアドレス", value: req.user.emails[0].value, inline: true },
-                { name: "メッセージ内容", value: message }
-            ],
-            thumbnail: { url: req.user.photos[0].value },
-            timestamp: new Date()
-        }]
-    });
-
-    // Discord Webhookへ送信
-    const url = new URL(webhookUrl);
-    const options = {
-        hostname: url.hostname,
-        path: url.pathname,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(discordData)
-        }
-    };
-
-    const discordReq = https.request(options, (discordRes) => {
-        console.log(`Discord status: ${discordRes.statusCode}`);
-    });
-
-    discordReq.on('error', (e) => {
-        console.error(`Discord送信エラー: ${e.message}`);
-    });
-
-    discordReq.write(discordData);
-    discordReq.end();
-
-    res.json({ success: true, message: '運営へ送信されました（Discord通知済み）' });
-});
-
-// ログアウト
-app.get('/logout', (req, res, next) => {
-    req.logout((err) => {
-        if (err) return next(err);
-        res.redirect('/');
-    });
-});
-
-// SPA対応
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.get('/logout', (req, res) => {
+  req.logout(() => {
+    res.redirect('/');
+  });
 });
 
 // サーバー起動
-app.listen(PORT, () => {
-    console.log(`✅ SESE Server running on port ${PORT}`);
-});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
