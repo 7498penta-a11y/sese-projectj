@@ -6,6 +6,7 @@
   <title>SESE鯖 - 公式サイト</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    /* フェードインアニメーション */
     .fade-in { animation: fadeIn 0.3s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .hidden { display: none; }
@@ -17,7 +18,9 @@
     <div class="max-w-7xl mx-auto px-4">
       <div class="flex items-center justify-between py-3">
         <div class="flex items-center gap-3 cursor-pointer" onclick="router('home')">
-          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm">SE</div>
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+            SE
+          </div>
           <div class="font-bold text-lg">SESE鯖</div>
         </div>
 
@@ -25,6 +28,7 @@
           <button onclick="router('home')" data-page="home" class="nav-btn px-3 py-2 rounded-lg transition-colors text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">ホーム</button>
           <button onclick="router('guidelines')" data-page="guidelines" class="nav-btn px-3 py-2 rounded-lg transition-colors text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">ガイドライン</button>
           <button onclick="router('staff')" data-page="staff" class="nav-btn px-3 py-2 rounded-lg transition-colors text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">運営紹介</button>
+          <button onclick="router('serverinfo')" data-page="serverinfo" class="nav-btn px-3 py-2 rounded-lg transition-colors text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">サーバー情報</button>
           <button onclick="router('contact')" data-page="contact" class="nav-btn px-3 py-2 rounded-lg transition-colors text-gray-600 hover:bg-indigo-50 hover:text-indigo-600">お問い合わせ</button>
           <button id="nav-admin" onclick="router('admin')" class="hidden px-3 py-2 rounded-lg bg-red-50 text-red-600 font-bold hover:bg-red-100 transition-colors">管理画面</button>
         </nav>
@@ -38,144 +42,236 @@
 
   <main class="max-w-7xl mx-auto px-4 py-7">
     
-    <section id="page-contact" class="page hidden fade-in">
-      <h1 class="text-2xl font-bold mb-6 border-b pb-2">お問い合わせ</h1>
-      
-      <div id="contact-content" class="max-w-4xl mx-auto">
-        <div id="contact-guest" class="hidden bg-white p-8 rounded-xl shadow-sm text-center border border-gray-100">
-          <div class="text-6xl mb-4">🔒</div>
-          <h2 class="text-xl font-bold mb-2">ログインが必要です</h2>
-          <p class="text-gray-600 mb-6">履歴の管理とスパム防止のためログインをお願いします。</p>
-          <a href="/auth/google" class="inline-block px-6 py-3 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 shadow transition">Googleでログイン</a>
+    <section id="page-home" class="page fade-in">
+      <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl p-8 mb-8 shadow-lg">
+        <h1 class="text-3xl md:text-4xl font-bold mb-3">SESE鯖へようこそ</h1>
+        <p class="mb-6 opacity-90">Discordコミュニティサーバー - 楽しく、安全に交流しましょう</p>
+        <div class="flex gap-3 flex-wrap">
+          <a href="https://discord.gg/WEWgXFss9p" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 bg-white text-indigo-600 rounded-lg font-bold hover:bg-indigo-50 transition shadow flex items-center gap-2">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.048-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+            Discordに参加する
+          </a>
+          <button onclick="router('guidelines')" class="px-5 py-2.5 bg-indigo-800 text-white rounded-lg font-bold hover:bg-indigo-900 transition shadow">ガイドラインを読む</button>
         </div>
+      </div>
 
-        <div id="contact-form-container" class="hidden space-y-8">
+      <div class="grid md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div class="text-4xl mb-3">🛡️</div>
+          <h3 class="font-bold text-lg mb-2">安全なコミュニティ</h3>
+          <p class="text-gray-600 text-sm">明確なガイドラインと運営体制で、安心して交流できます。</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div class="text-4xl mb-3">👥</div>
+          <h3 class="font-bold text-lg mb-2">活発な交流</h3>
+          <p class="text-gray-600 text-sm">多くのメンバーが参加中。様々な話題で盛り上がろう。</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div class="text-4xl mb-3">💬</div>
+          <h3 class="font-bold text-lg mb-2">充実した機能</h3>
+          <p class="text-gray-600 text-sm">多数のチャンネルとBOT機能で快適なDiscordライフを。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-guidelines" class="page hidden fade-in">
+      <h1 class="text-2xl font-bold mb-6 border-b pb-2">SESE鯖ガイドライン</h1>
+      <div class="bg-white p-6 rounded-xl shadow-sm mb-6 border border-gray-100">
+        <h2 class="text-lg font-bold mb-2 text-indigo-700">📚 第一章 - 定義</h2>
+        <p class="text-gray-600"><strong>第一条:</strong> seseのDiscord鯖（以降「この鯖」と呼ぶ）での規則を指す。</p>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-sm mb-6 border border-gray-100">
+        <h2 class="text-lg font-bold mb-4 text-indigo-700">⚠️ 第二章 - 禁止事項と罰則</h2>
+        <h3 class="font-bold mb-2 border-l-4 border-indigo-500 pl-3">第二条 - 禁止行為</h3>
+        <ul class="list-disc pl-5 text-gray-600 space-y-1 mb-6">
+          <li>サブ垢やbotなどを利用しサーバー人数を膨張させること</li>
+          <li>誤った、または誤解を招く情報を共有すること</li>
+          <li>なりすまし、他者へのハラスメント</li>
+          <li>暴言、侮辱、人格攻撃</li>
+          <li>スパム行為（連投、無意味な長文）</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="page-staff" class="page hidden fade-in">
+      <h1 class="text-2xl font-bold mb-6 border-b pb-2">運営メンバー紹介</h1>
+      <div class="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-6 rounded-xl mb-6 shadow-md">
+        <div class="flex items-center gap-4">
+          <div class="text-4xl bg-white bg-opacity-20 p-3 rounded-full">👑</div>
+          <div>
+            <h2 class="text-xl font-bold">オーナー</h2>
+            <div class="mt-1 text-lg font-medium">@sese_PAP_1122</div>
+          </div>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h2 class="text-lg font-bold mb-4 flex items-center gap-2">🛡️ 運営（アドミン）</h2>
+          <div class="space-y-2">
+            <div class="p-2 bg-indigo-50 rounded">@creeper_dev</div>
+            <div class="p-2 bg-indigo-50 rounded">@MRF_4922</div>
+            <div class="p-2 bg-indigo-50 rounded">@7498</div>
+          </div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h2 class="text-lg font-bold mb-4 flex items-center gap-2">👥 モデレーター</h2>
+          <div class="space-y-2">
+            <div class="p-2 bg-purple-50 rounded">@kuroneko22_22_sabu</div>
+            <div class="p-2 bg-purple-50 rounded">@yshi</div>
+            <div class="p-2 bg-purple-50 rounded">@やも</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-serverinfo" class="page hidden fade-in">
+      <h1 class="text-2xl font-bold mb-6 border-b pb-2">サーバー情報</h1>
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <table class="w-full text-left">
+          <tr class="border-b"><th class="py-3 text-gray-500">サーバーID</th><td class="py-3">1405840878290993196</td></tr>
+          <tr class="border-b"><th class="py-3 text-gray-500">作成日</th><td class="py-3">2024/8/15</td></tr>
+          <tr><th class="py-3 text-gray-500">メンバー数</th><td class="py-3">113人</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section id="page-contact" class="page hidden fade-in">
+      <h1 class="text-2xl font-bold mb-6 border-b pb-2">お問い合わせ & 履歴</h1>
+      <div id="contact-content" class="max-w-4xl mx-auto">
+        <div id="contact-guest" class="hidden bg-white p-8 rounded-xl shadow-sm text-center border">
+          <p class="mb-6">お問い合わせにはログインが必要です。</p>
+          <a href="/auth/google" class="px-6 py-3 bg-indigo-600 text-white rounded-lg font-bold">Googleでログイン</a>
+        </div>
+        <div id="contact-user-area" class="hidden space-y-8">
           <form onsubmit="submitContact(event)" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h2 class="font-bold mb-4 flex items-center gap-2"><span class="text-indigo-600">●</span> 新規お問い合わせ</h2>
-            <textarea id="contact-message" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none mb-3" placeholder="内容を入力してください..." required></textarea>
-            <button type="submit" id="submit-btn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition">送信する</button>
+            <h2 class="font-bold mb-4">新規お問い合わせ送信</h2>
+            <textarea id="contact-message" rows="4" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none mb-3" placeholder="内容を入力..." required></textarea>
+            <button type="submit" id="submit-btn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg">送信する</button>
           </form>
-
-          <div class="space-y-4">
-            <h2 class="font-bold flex items-center gap-2"><span class="text-indigo-600">●</span> あなたのお問い合わせ履歴</h2>
-            <div id="my-tickets" class="space-y-4">
-              <p class="text-gray-400 text-sm">履歴はありません。</p>
-            </div>
+          <div>
+            <h2 class="font-bold mb-4">あなたの送信履歴</h2>
+            <div id="my-tickets-list" class="space-y-4"></div>
           </div>
         </div>
       </div>
     </section>
 
     <section id="page-admin" class="page hidden fade-in">
-      <h1 class="text-2xl font-bold mb-6 border-b pb-2 text-red-600">運営管理画面</h1>
-      <div id="admin-tickets" class="space-y-6">
-        </div>
+      <h1 class="text-2xl font-bold mb-6 border-b pb-2 text-red-600">運営管理パネル</h1>
+      <div id="admin-tickets-list" class="space-y-6"></div>
     </section>
 
   </main>
 
+  <footer class="max-w-7xl mx-auto px-4 py-6 text-center text-gray-400 text-sm">
+    &copy; 2024 SESE Server.
+  </footer>
+
   <script>
     let currentUser = null;
 
+    // ルーティング
     function router(pageName) {
       document.querySelectorAll('.page').forEach(el => el.classList.add('hidden'));
       const target = document.getElementById(`page-${pageName}`);
       if(target) target.classList.remove('hidden');
       if(pageName === 'contact') loadMyTickets();
-      if(pageName === 'admin') loadAllTickets();
+      if(pageName === 'admin') loadAdminTickets();
     }
 
+    // ログインチェック
     async function checkLogin() {
       try {
         const res = await fetch('/api/user');
         const data = await res.json();
         currentUser = data.isLoggedIn ? data.user : null;
         renderHeader();
-        renderContactArea();
-      } catch (err) { console.error(err); }
+        renderContactUI();
+      } catch (e) { console.error(e); }
     }
 
     function renderHeader() {
-      const userArea = document.getElementById('user-area');
-      const navAdmin = document.getElementById('nav-admin');
-      
-      if (currentUser) {
-        userArea.innerHTML = `<span class="text-sm font-medium">${currentUser.name}</span><a href="/logout" class="text-xs text-red-500 border border-red-500 px-2 py-1 rounded">ログアウト</a>`;
-        if(currentUser.isAdmin) navAdmin.classList.remove('hidden'); // 運営なら管理ボタン表示
-      } else {
-        userArea.innerHTML = `<a href="/auth/google" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold">ログイン</a>`;
-        navAdmin.classList.add('hidden');
-      }
-    }
-
-    function renderContactArea() {
-      const guestView = document.getElementById('contact-guest');
-      const formView = document.getElementById('contact-form-container');
+      const area = document.getElementById('user-area');
+      const adminBtn = document.getElementById('nav-admin');
       if(currentUser) {
-        guestView.classList.add('hidden');
-        formView.classList.remove('hidden');
+        area.innerHTML = `<span class="text-sm font-bold">${currentUser.name}</span><a href="/logout" class="text-xs text-red-500 border border-red-200 px-2 py-1 rounded">ログアウト</a>`;
+        if(currentUser.isAdmin) adminBtn.classList.remove('hidden');
       } else {
-        guestView.classList.remove('hidden');
-        formView.classList.add('hidden');
+        area.innerHTML = `<a href="/auth/google" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold">ログイン</a>`;
       }
     }
 
-    // --- 履歴取得（ユーザー用） ---
-    async function loadMyTickets() {
-      const container = document.getElementById('my-tickets');
-      try {
-        const res = await fetch('/api/my-contacts');
-        const tickets = await res.json();
-        container.innerHTML = tickets.map(t => `
-          <div class="bg-white p-4 rounded-lg shadow-sm border ${t.reply ? 'border-green-200' : 'border-gray-100'}">
-            <div class="flex justify-between text-xs mb-2">
-              <span class="text-gray-400">${new Date(t.createdAt).toLocaleString()}</span>
-              <span class="px-2 py-0.5 rounded ${t.reply ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${t.reply ? '回答済み' : '未回答'}</span>
-            </div>
-            <p class="text-sm">${t.message}</p>
-            ${t.reply ? `<div class="mt-3 p-3 bg-green-50 rounded border-l-4 border-green-500 text-sm"><strong>運営からの返信:</strong><br>${t.reply}</div>` : ''}
-          </div>
-        `).join('');
-      } catch (e) { container.innerHTML = "読み込みエラー"; }
+    function renderContactUI() {
+      const guest = document.getElementById('contact-guest');
+      const userArea = document.getElementById('contact-user-area');
+      if(currentUser) {
+        guest.classList.add('hidden');
+        userArea.classList.remove('hidden');
+      } else {
+        guest.classList.remove('hidden');
+        userArea.classList.add('hidden');
+      }
     }
 
-    // --- 全履歴取得（運営用） ---
-    async function loadAllTickets() {
-      const container = document.getElementById('admin-tickets');
-      try {
-        const res = await fetch('/api/admin/contacts');
-        const tickets = await res.json();
-        container.innerHTML = tickets.map(t => `
-          <div class="bg-white p-6 rounded-xl shadow border border-gray-200">
-            <div class="flex items-center gap-3 mb-3">
-              <img src="${t.userPhoto}" class="w-8 h-8 rounded-full">
-              <div class="text-sm"><strong>${t.userName}</strong> <span class="text-gray-400 text-xs">(${t.userEmail})</span></div>
-            </div>
-            <p class="bg-gray-50 p-3 rounded text-sm mb-4">${t.message}</p>
-            <div class="space-y-2">
-              <textarea id="reply-${t.id}" class="w-full p-2 border rounded text-sm" placeholder="返信を入力...">${t.reply || ''}</textarea>
-              <button onclick="submitReply('${t.id}')" class="bg-green-600 text-white text-xs px-4 py-2 rounded hover:bg-green-700">返信を保存・更新</button>
-            </div>
-          </div>
-        `).join('');
-      } catch (e) { container.innerHTML = "権限がありません。"; }
-    }
-
-    async function submitReply(id) {
-      const reply = document.getElementById(`reply-${id}`).value;
-      const res = await fetch(`/api/admin/reply/${id}`, {
+    // お問い合わせ送信
+    async function submitContact(e) {
+      e.preventDefault();
+      const message = document.getElementById('contact-message').value;
+      const res = await fetch('/api/contact', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ message })
+      });
+      if(res.ok) {
+        alert("送信しました！");
+        document.getElementById('contact-message').value = '';
+        loadMyTickets();
+      }
+    }
+
+    // ユーザー履歴読み込み
+    async function loadMyTickets() {
+      const list = document.getElementById('my-tickets-list');
+      const res = await fetch('/api/my-contacts');
+      const data = await res.json();
+      list.innerHTML = data.length ? data.map(t => `
+        <div class="bg-white p-4 rounded-lg shadow-sm border">
+          <div class="text-xs text-gray-400 mb-2">${new Date(t.createdAt).toLocaleString()}</div>
+          <p class="text-sm mb-3">${t.message}</p>
+          ${t.reply ? `<div class="p-3 bg-green-50 border-l-4 border-green-500 text-sm"><strong>運営の返信:</strong><br>${t.reply}</div>` : '<span class="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded">回答待ち</span>'}
+        </div>
+      `).join('') : '<p class="text-gray-400">履歴がありません。</p>';
+    }
+
+    // 管理画面読み込み
+    async function loadAdminTickets() {
+      const list = document.getElementById('admin-tickets-list');
+      const res = await fetch('/api/admin/contacts');
+      const data = await res.json();
+      list.innerHTML = data.map(t => `
+        <div class="bg-white p-5 rounded-xl shadow border border-red-100">
+          <div class="flex items-center gap-3 mb-3 text-sm">
+            <img src="${t.userPhoto}" class="w-8 h-8 rounded-full">
+            <strong>${t.userName}</strong> <span class="text-gray-400 text-xs">${t.userEmail}</span>
+          </div>
+          <p class="bg-gray-50 p-3 rounded text-sm mb-4">${t.message}</p>
+          <textarea id="reply-${t.id}" class="w-full p-2 border rounded text-sm mb-2" placeholder="返信内容...">${t.reply || ''}</textarea>
+          <button onclick="saveReply('${t.id}')" class="bg-green-600 text-white text-xs px-4 py-2 rounded">返信を保存</button>
+        </div>
+      `).join('');
+    }
+
+    async function saveReply(id) {
+      const reply = document.getElementById(`reply-${id}`).value;
+      await fetch(`/api/admin/reply/${id}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ reply })
       });
-      if(res.ok) alert("返信を保存しました");
+      alert("保存しました。");
     }
 
-    // 初期化
-    window.addEventListener('DOMContentLoaded', () => {
-      checkLogin();
-      router('home');
-    });
+    window.addEventListener('DOMContentLoaded', () => { checkLogin(); router('home'); });
   </script>
 </body>
 </html>
