@@ -4,14 +4,26 @@ const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const path = require('path');
+const sqlite3 = require('sqlite3').verbose();
 
 const app = express();
+const db = new sqlite3.Database('./database.sqlite');
 
-// 簡易データベース（サーバー再起動でリセットされます）
-// 本番運用ではSQLiteやMongoDBなどのDB接続を推奨します
-let contacts = []; 
+// データベースの初期化
+db.serialize(() => {
+  db.run(`CREATE TABLE IF NOT EXISTS contacts (
+    id TEXT PRIMARY KEY,
+    userId TEXT,
+    userName TEXT,
+    userEmail TEXT,
+    userPhoto TEXT,
+    message TEXT,
+    reply TEXT,
+    createdAt DATETIME
+  )`);
+});
 
-// --- Passport 設定 ---
+// Passport 設定
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -31,26 +43,23 @@ passport.use(new GoogleStrategy({
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
-// --- ミドルウェア ---
 app.use(express.json());
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'sese_secret',
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// 管理者判定関数
 const isAdmin = (user) => {
   if (!user || !user.email) return false;
-  const adminList = process.env.ADMIN_EMAILS.split(',');
+  const adminList = (process.env.ADMIN_EMAILS || "").split(',');
   return adminList.includes(user.email);
 };
 
-// --- API エンドポイント ---
-
-// ユーザー情報取得
+// API エンドポイント
 app.get('/api/user', (req, res) => {
   if (!req.isAuthenticated()) return res.json({ isLoggedIn: false });
   res.json({
@@ -59,49 +68,43 @@ app.get('/api/user', (req, res) => {
   });
 });
 
-// お問い合わせ送信
 app.post('/api/contact', (req, res) => {
   if (!req.isAuthenticated()) return res.status(401).json({ error: 'Login required' });
-  const newEntry = {
-    id: Date.now().toString(),
-    userId: req.user.id,
-    userName: req.user.name,
-    userEmail: req.user.email,
-    userPhoto: req.user.photo,
-    message: req.body.message,
-    reply: null,
-    createdAt: new Date()
-  };
-  contacts.push(newEntry);
-  res.json({ success: true, message: '運営に送信されました！' });
+  const { message } = req.body;
+  const id = Date.now().toString();
+  const createdAt = new Date().toISOString();
+
+  db.run(`INSERT INTO contacts (id, userId, userName, userEmail, userPhoto, message, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [id, req.user.id, req.user.name, req.user.email, req.user.photo, message, createdAt],
+    (err) => {
+      if (err) return res.status(500).json({ error: 'DB Error' });
+      res.json({ success: true });
+    }
+  );
 });
 
-// 自分の履歴取得
 app.get('/api/my-contacts', (req, res) => {
-  if (!req.isAuthenticated()) return res.status(401).json([]);
-  const userHistory = contacts.filter(c => c.userId === req.user.id);
-  res.json(userHistory);
+  if (!req.isAuthenticated()) return res.json([]);
+  db.all(`SELECT * FROM contacts WHERE userId = ? ORDER BY createdAt DESC`, [req.user.id], (err, rows) => {
+    res.json(rows || []);
+  });
 });
 
-// 管理者：全件取得
 app.get('/api/admin/contacts', (req, res) => {
-  if (!isAdmin(req.user)) return res.status(403).send('Access Denied');
-  res.json(contacts);
+  if (!isAdmin(req.user)) return res.status(403).send('Denied');
+  db.all(`SELECT * FROM contacts ORDER BY createdAt DESC`, [], (err, rows) => {
+    res.json(rows || []);
+  });
 });
 
-// 管理者：返答保存
 app.post('/api/admin/reply/:id', (req, res) => {
-  if (!isAdmin(req.user)) return res.status(403).send('Access Denied');
-  const entry = contacts.find(c => c.id === req.params.id);
-  if (entry) {
-    entry.reply = req.body.reply;
+  if (!isAdmin(req.user)) return res.status(403).send('Denied');
+  db.run(`UPDATE contacts SET reply = ? WHERE id = ?`, [req.body.reply, req.params.id], (err) => {
     res.json({ success: true });
-  } else {
-    res.status(404).send('Not found');
-  }
+  });
 });
 
-// --- 認証ルート ---
+// 認証ルート
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => {
   res.redirect('/#contact');
@@ -110,8 +113,10 @@ app.get('/logout', (req, res) => {
   req.logout(() => res.redirect('/'));
 });
 
-// 静的ファイルの配信
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+// Render向け: 絶対パスでindex.htmlを返す
+app.get('/', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'index.html'));
+});
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server: http://localhost:${PORT}`));
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
