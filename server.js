@@ -16,7 +16,6 @@ app.use(express.static('public'));
 const ADMIN_EMAILS = (process.env.ADMIN_EMAIL || "").split(',').map(email => email.trim());
 
 // --- データの保存場所（メモリ上の配列） ---
-// ⚠️ Renderの再起動（デプロイや無料プランの休止）でリセットされます
 let allMessages = []; 
 
 // セッション設定
@@ -53,10 +52,8 @@ passport.deserializeUser((obj, done) => done(null, obj));
  * 認証ルート
  * ---------------------------------------------------------------- */
 
-// ログイン開始
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-// Googleからの戻り先
 app.get('/auth/google/callback', 
   passport.authenticate('google', { failureRedirect: '/' }),
   (req, res) => {
@@ -64,7 +61,6 @@ app.get('/auth/google/callback',
   }
 );
 
-// ログアウト
 app.get('/logout', (req, res) => {
   req.logout(() => res.redirect('/'));
 });
@@ -73,20 +69,20 @@ app.get('/logout', (req, res) => {
  * APIルート
  * ---------------------------------------------------------------- */
 
-// 1. ユーザー情報（ログイン中か、管理者か）
+// 1. ユーザー情報取得
 app.get('/api/user', (req, res) => {
   if (req.isAuthenticated()) {
     res.json({ 
       isLoggedIn: true, 
       user: req.user, 
-      isAdmin: ADMIN_EMAILS.includes(req.user.email) // 複数管理者の判定
+      isAdmin: ADMIN_EMAILS.includes(req.user.email)
     });
   } else {
     res.json({ isLoggedIn: false });
   }
 });
 
-// 2. お問い合わせ送信
+// 2. お問い合わせ送信（Discord通知を詳細化）
 app.post('/api/contact', async (req, res) => {
   if (!req.isAuthenticated()) return res.status(401).json({ error: 'ログインが必要です' });
   
@@ -101,27 +97,43 @@ app.post('/api/contact', async (req, res) => {
 
   allMessages.push(newMessage);
 
-  // Discord Webhook 通知
+  // Discord Webhook 通知の設定
   if (process.env.DISCORD_WEBHOOK_URL) {
     try {
       await axios.post(process.env.DISCORD_WEBHOOK_URL, {
         embeds: [{
-          title: "📩 新着メッセージ (メモリ保存)",
-          color: 5814783,
+          title: "📩 新しいお問い合わせ",
+          color: 3447003, // 鮮やかな青色
           fields: [
-            { name: "ユーザー", value: req.user.name, inline: true },
-            { name: "メール", value: req.user.email, inline: true },
-            { name: "内容", value: req.body.message }
-          ]
+            {
+              name: "👤 ユーザー名",
+              value: req.user.name,
+              inline: true
+            },
+            {
+              name: "📧 メールアドレス",
+              value: req.user.email,
+              inline: true
+            },
+            {
+              name: "📝 内容",
+              value: req.body.message
+            }
+          ],
+          footer: {
+            text: `送信日時: ${newMessage.timestamp}`
+          }
         }]
       });
-    } catch (e) { console.error("Discord通知失敗"); }
+    } catch (e) {
+      console.error("Discord通知に失敗しました:", e.message);
+    }
   }
 
   res.json({ success: true });
 });
 
-// 3. ユーザー自身のメッセージ（回答を含む）取得
+// 3. ユーザー自身の履歴取得
 app.get('/api/my-messages', (req, res) => {
   if (!req.isAuthenticated()) return res.json({ messages: [] });
   const mine = allMessages.filter(m => m.email === req.user.email);
@@ -137,7 +149,7 @@ app.get('/api/admin/messages', (req, res) => {
   }
 });
 
-// 5. 【運営専用】メッセージへの回答
+// 5. 【運営専用】回答
 app.post('/api/admin/reply', (req, res) => {
   if (req.isAuthenticated() && ADMIN_EMAILS.includes(req.user.email)) {
     const { messageId, replyContent } = req.body;
@@ -146,7 +158,7 @@ app.post('/api/admin/reply', (req, res) => {
       msg.reply = replyContent;
       res.json({ success: true });
     } else {
-      res.status(404).json({ error: 'メッセージが見つかりません' });
+      res.status(404).json({ error: '見つかりません' });
     }
   } else {
     res.status(403).json({ error: 'Forbidden' });
@@ -154,4 +166,4 @@ app.post('/api/admin/reply', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server started on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));
