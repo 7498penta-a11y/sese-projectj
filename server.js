@@ -1,231 +1,143 @@
+// ==========================================
+// SESE Server - Backend Logic
+// ==========================================
+require('dotenv').config(); // .envファイルの読み込み
+
 const express = require('express');
-const cors = require('cors');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const fs = require('fs').promises;
+const session = require('express-session');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const path = require('path');
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-/* ====== 変更①：PORT を Render 対応 ====== */
-const PORT = process.env.PORT || 3001;
-
-const JWT_SECRET = 'your-secret-key-change-in-production'; // 本番環境では環境変数推奨
-
-// データファイルのパス
-const DATA_DIR = path.join(__dirname, 'data');
-const USERS_FILE = path.join(DATA_DIR, 'users.json');
-const CONTACTS_FILE = path.join(DATA_DIR, 'contacts.json');
-
-/* ====== 変更②：HTML 配信用ディレクトリ ====== */
-const PUBLIC_DIR = path.join(__dirname, 'public');
-
-app.use(cors());
+// --- 1. ミドルウェア設定 ---
+// JSONボディの解析
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-/* ====== 変更③：HTML / CSS / JS を読み込む ====== */
-app.use(express.static(PUBLIC_DIR));
+// 静的ファイルの配信 (publicフォルダ)
+app.use(express.static(path.join(__dirname, 'public')));
 
-/* ====== トップページ（HTMLを表示） ====== */
-app.get('/', (req, res) => {
-  res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
+// セッション設定 (ログイン状態の維持)
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'default_secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+        secure: false, // https化する時はtrueにする
+        maxAge: 24 * 60 * 60 * 1000 // 24時間有効
+    }
+}));
+
+// Passportの初期化
+app.use(passport.initialize());
+app.use(passport.session());
+
+// --- 2. Google OAuth設定 ---
+// 注意: 実際の運用ではデータベース(UserDB)を用意してユーザーを保存します。
+// 今回はデモのため、メモリ上で処理します。
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "http://localhost:3000/auth/google/callback"
+  },
+  function(accessToken, refreshToken, profile, done) {
+    // ログイン成功時の処理
+    // ここで profile.id を使ってDBを検索・登録するのが一般的です
+    return done(null, profile);
+  }
+));
+
+// セッションへの保存・復元
+passport.serializeUser((user, done) => {
+    done(null, user);
+});
+passport.deserializeUser((obj, done) => {
+    done(null, obj);
 });
 
-// データディレクトリの初期化
-async function initDataDir() {
-  try {
-    await fs.mkdir(DATA_DIR, { recursive: true });
+// --- 3. ルーティング (API) ---
 
-    try {
-      await fs.access(USERS_FILE);
-    } catch {
-      await fs.writeFile(USERS_FILE, JSON.stringify([], null, 2));
-    }
+// A. 認証ルート
+// Googleログイン開始
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
 
-    try {
-      await fs.access(CONTACTS_FILE);
-    } catch {
-      await fs.writeFile(CONTACTS_FILE, JSON.stringify([], null, 2));
-    }
-  } catch (error) {
-    console.error('データディレクトリの初期化エラー:', error);
+// Googleからのコールバック
+app.get('/auth/google/callback', 
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+    // 成功したらお問い合わせページへ転送
+    res.redirect('/#contact');
   }
-}
+);
 
-// データ読み込み
-async function readData(filePath) {
-  try {
-    const data = await fs.readFile(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('データ読み込みエラー:', error);
-    return [];
-  }
-}
-
-// データ書き込み
-async function writeData(filePath, data) {
-  try {
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
-    return true;
-  } catch (error) {
-    console.error('データ書き込みエラー:', error);
-    return false;
-  }
-}
-
-// ユーザー登録
-app.post('/api/register', async (req, res) => {
-  try {
-    const { email, password, name } = req.body;
-
-    if (!email || !password || !name) {
-      return res.status(400).json({ success: false, error: '全ての項目を入力してください' });
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ success: false, error: '有効なメールアドレスを入力してください' });
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({ success: false, error: 'パスワードは6文字以上である必要があります' });
-    }
-
-    const users = await readData(USERS_FILE);
-
-    if (users.find(u => u.email === email)) {
-      return res.status(400).json({ success: false, error: 'このメールアドレスは既に登録されています' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = {
-      id: Date.now().toString(),
-      email,
-      name,
-      password: hashedPassword,
-      createdAt: new Date().toISOString()
-    };
-
-    users.push(newUser);
-    await writeData(USERS_FILE, users);
-
-    const token = jwt.sign(
-      { id: newUser.id, email: newUser.email, name: newUser.name },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    res.json({
-      success: true,
-      token,
-      user: { id: newUser.id, email: newUser.email, name: newUser.name }
+// ログアウト
+app.get('/logout', (req, res, next) => {
+    req.logout((err) => {
+        if (err) { return next(err); }
+        // セッションを破棄してホームへ
+        req.session.destroy(() => {
+            res.redirect('/');
+        });
     });
-  } catch (error) {
-    console.error('登録エラー:', error);
-    res.status(500).json({ success: false, error: 'サーバーエラーが発生しました' });
-  }
 });
 
-// ログイン
-app.post('/api/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ success: false, error: 'メールアドレスとパスワードを入力してください' });
+// B. データ取得API
+// 現在のユーザー情報をフロントに返す
+app.get('/api/user', (req, res) => {
+    if (req.isAuthenticated() && req.user) {
+        res.json({
+            isLoggedIn: true,
+            user: {
+                id: req.user.id,
+                name: req.user.displayName,
+                email: (req.user.emails && req.user.emails[0]) ? req.user.emails[0].value : '非公開',
+                photo: (req.user.photos && req.user.photos[0]) ? req.user.photos[0].value : null
+            }
+        });
+    } else {
+        res.json({ isLoggedIn: false });
     }
-
-    const users = await readData(USERS_FILE);
-    const user = users.find(u => u.email === email);
-
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'メールアドレスまたはパスワードが正しくありません' });
-    }
-
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
-      return res.status(401).json({ success: false, error: 'メールアドレスまたはパスワードが正しくありません' });
-    }
-
-    const token = jwt.sign(
-      { id: user.id, email: user.email, name: user.name },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    res.json({
-      success: true,
-      token,
-      user: { id: user.id, email: user.email, name: user.name }
-    });
-  } catch (error) {
-    console.error('ログインエラー:', error);
-    res.status(500).json({ success: false, error: 'サーバーエラーが発生しました' });
-  }
 });
 
-// トークン検証ミドルウェア
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ success: false, error: '認証が必要です' });
-  }
-
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ success: false, error: '無効なトークンです' });
+// C. お問い合わせ送信API
+app.post('/api/contact', (req, res) => {
+    // 未ログインなら拒否
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({ success: false, error: 'ログインが必要です' });
     }
-    req.user = user;
-    next();
-  });
-};
 
-// お問い合わせ送信
-app.post('/api/contact', authenticateToken, async (req, res) => {
-  try {
     const { message } = req.body;
 
-    if (!message) {
-      return res.status(400).json({ success: false, error: 'お問い合わせ内容を入力してください' });
+    // バリデーション（空文字チェック）
+    if (!message || message.trim() === "") {
+        return res.status(400).json({ success: false, error: 'メッセージが空です' });
     }
 
-    const contacts = await readData(CONTACTS_FILE);
+    // ★ここで本来はDiscordのWebhookに投げたり、データベースに保存したりします
+    console.log("==========================================");
+    console.log(`[お問い合わせ受信]`);
+    console.log(`送信者: ${req.user.displayName} (${req.user.emails[0].value})`);
+    console.log(`内容: ${message}`);
+    console.log("==========================================");
 
-    const newContact = {
-      id: Date.now().toString(),
-      userId: req.user.id,
-      name: req.user.name,
-      email: req.user.email,
-      message,
-      createdAt: new Date().toISOString(),
-      status: 'pending'
-    };
-
-    contacts.push(newContact);
-    await writeData(CONTACTS_FILE, contacts);
-
-    res.json({ success: true, message: 'お問い合わせを受け付けました' });
-  } catch (error) {
-    console.error('お問い合わせ送信エラー:', error);
-    res.status(500).json({ success: false, error: 'サーバーエラーが発生しました' });
-  }
+    // 成功レスポンス
+    res.json({ success: true, message: 'お問い合わせを受け付けました。運営からの返信をお待ちください。' });
 });
 
-// ユーザー情報取得
-app.get('/api/user', authenticateToken, (req, res) => {
-  res.json({
-    success: true,
-    user: { id: req.user.id, email: req.user.email, name: req.user.name }
-  });
+// D. その他 (SPA対応)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// サーバー起動
-app.listen(PORT, async () => {
-  await initDataDir();
-  console.log(`🚀 サーバーがポート${PORT}で起動しました`);
-  console.log(`📁 データディレクトリ: ${DATA_DIR}`);
+// --- 4. サーバー起動 ---
+app.listen(PORT, () => {
+    console.log(`--------------------------------------------------`);
+    console.log(`✅ SESE Server running at http://localhost:${PORT}`);
+    console.log(`ℹ️  Google Login requires setup in .env file`);
+    console.log(`--------------------------------------------------`);
 });
