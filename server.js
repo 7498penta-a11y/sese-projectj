@@ -7,17 +7,17 @@ const path = require('path');
 
 const app = express();
 
-// --- 簡易データベース（本番ではMongoDBやSQLを推奨） ---
-let contacts = []; // お問い合わせデータ保存用
+// 簡易データベース（サーバー再起動でリセットされます）
+// 本番運用ではSQLiteやMongoDBなどのDB接続を推奨します
+let contacts = []; 
 
-// --- Passportの設定 (Googleログイン) ---
+// --- Passport 設定 ---
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: process.env.CALLBACK_URL
   },
   (accessToken, refreshToken, profile, done) => {
-    // ユーザー情報を整理
     const user = {
       id: profile.id,
       name: profile.displayName,
@@ -31,7 +31,7 @@ passport.use(new GoogleStrategy({
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
-// --- ミドルウェア設定 ---
+// --- ミドルウェア ---
 app.use(express.json());
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -40,34 +40,29 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(express.static('public')); // HTMLファイルを置くフォルダ
 
-// --- 管理者判定用ヘルパー ---
+// 管理者判定関数
 const isAdmin = (user) => {
   if (!user || !user.email) return false;
   const adminList = process.env.ADMIN_EMAILS.split(',');
   return adminList.includes(user.email);
 };
 
-// --- APIルート ---
+// --- API エンドポイント ---
 
-// ログイン状態と管理者フラグを返す
+// ユーザー情報取得
 app.get('/api/user', (req, res) => {
   if (!req.isAuthenticated()) return res.json({ isLoggedIn: false });
   res.json({
     isLoggedIn: true,
-    user: {
-      ...req.user,
-      isAdmin: isAdmin(req.user)
-    }
+    user: { ...req.user, isAdmin: isAdmin(req.user) }
   });
 });
 
 // お問い合わせ送信
 app.post('/api/contact', (req, res) => {
-  if (!req.isAuthenticated()) return res.status(401).json({ error: 'ログインが必要です' });
-  
-  const newContact = {
+  if (!req.isAuthenticated()) return res.status(401).json({ error: 'Login required' });
+  const newEntry = {
     id: Date.now().toString(),
     userId: req.user.id,
     userName: req.user.name,
@@ -77,31 +72,29 @@ app.post('/api/contact', (req, res) => {
     reply: null,
     createdAt: new Date()
   };
-  
-  contacts.push(newContact);
-  res.json({ success: true, message: '送信が完了しました' });
+  contacts.push(newEntry);
+  res.json({ success: true, message: '運営に送信されました！' });
 });
 
 // 自分の履歴取得
 app.get('/api/my-contacts', (req, res) => {
-  if (!req.isAuthenticated()) return res.status(401).send();
-  const myData = contacts.filter(c => c.userId === req.user.id);
-  res.json(myData);
+  if (!req.isAuthenticated()) return res.status(401).json([]);
+  const userHistory = contacts.filter(c => c.userId === req.user.id);
+  res.json(userHistory);
 });
 
-// 【管理者専用】全件取得
+// 管理者：全件取得
 app.get('/api/admin/contacts', (req, res) => {
-  if (!isAdmin(req.user)) return res.status(403).send('Forbidden');
+  if (!isAdmin(req.user)) return res.status(403).send('Access Denied');
   res.json(contacts);
 });
 
-// 【管理者専用】返信の保存
+// 管理者：返答保存
 app.post('/api/admin/reply/:id', (req, res) => {
-  if (!isAdmin(req.user)) return res.status(403).send('Forbidden');
-  
-  const ticket = contacts.find(c => c.id === req.params.id);
-  if (ticket) {
-    ticket.reply = req.body.reply;
+  if (!isAdmin(req.user)) return res.status(403).send('Access Denied');
+  const entry = contacts.find(c => c.id === req.params.id);
+  if (entry) {
+    entry.reply = req.body.reply;
     res.json({ success: true });
   } else {
     res.status(404).send('Not found');
@@ -110,18 +103,15 @@ app.post('/api/admin/reply/:id', (req, res) => {
 
 // --- 認証ルート ---
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-
-app.get('/auth/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/' }),
-  (req, res) => res.redirect('/#contact') // ログイン後にお問い合わせページへ
-);
-
+app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => {
+  res.redirect('/#contact');
+});
 app.get('/logout', (req, res) => {
-  req.logout(() => {
-    res.redirect('/');
-  });
+  req.logout(() => res.redirect('/'));
 });
 
-// サーバー起動
+// 静的ファイルの配信
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Server: http://localhost:${PORT}`));
