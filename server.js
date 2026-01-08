@@ -7,7 +7,7 @@ const axios = require('axios');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
-const hpp = require('hpp'); // HTTPパラメータ汚染対策
+const hpp = require('hpp');
 
 const app = express();
 
@@ -17,27 +17,29 @@ const app = express();
 app.set('trust proxy', 1);
 
 /** ----------------------------------------------------------------
- * セキュリティ設定 2: HTTPヘッダー・防御ミドルウェア
+ * セキュリティ設定 2: 防御ミドルウェア (基本)
  * ---------------------------------------------------------------- */
-app.use(helmet({
-  contentSecurityPolicy: false, 
-}));
-app.use(hpp()); // 同じ名前のパラメータを複数送る攻撃を防止
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(hpp());
+app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
+app.use(express.static('public'));
 
 /** ----------------------------------------------------------------
- * セキュリティ設定 3: レート制限 (キツキツ設定)
+ * セキュリティ設定 3: レート制限の定義
  * ---------------------------------------------------------------- */
 
-// 全API共通：1秒間に3回までの短期制限（バースト・連打対策）
+// 全API共通：1秒間に3回までの短期制限
 const apiBurstLimiter = rateLimit({
   windowMs: 1000, 
   max: 3,
   message: { error: 'リクエストが速すぎます。' },
   standardHeaders: true,
   legacyHeaders: false,
+  skipFailedRequests: false, // 失敗したリクエストもカウントに含める
 });
 
-// お問い合わせ専用：5分間に2回までの厳格制限（スパム・連続投稿対策）
+// お問い合わせ専用：5分間に2回までの厳格制限
 const contactStrictLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, 
   max: 2,
@@ -47,12 +49,8 @@ const contactStrictLimiter = rateLimit({
 });
 
 /** ----------------------------------------------------------------
- * セキュリティ設定 4: ボディサイズ制限 & セッション
+ * セッション & パスポート設定
  * ---------------------------------------------------------------- */
-app.use(express.json({ limit: '10kb' })); // 巨大なJSONによるメモリ攻撃を防止
-app.use(cookieParser());
-app.use(express.static('public'));
-
 app.use(session({
   secret: process.env.SESSION_SECRET || 'sese_secure_key_1122',
   resave: false,
@@ -69,12 +67,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-/** ----------------------------------------------------------------
- * 認証・データ管理
- * ---------------------------------------------------------------- */
+// 管理者メール
 const ADMIN_EMAILS = (process.env.ADMIN_EMAIL || "").split(',').map(email => email.trim());
-
-// 注意：本番ではデータベース（MongoDB/PostgreSQL等）への変更を強く推奨します
 let allMessages = []; 
 
 passport.use(new GoogleStrategy({
@@ -87,7 +81,6 @@ passport.use(new GoogleStrategy({
     if (!profile.emails || !profile.emails[0]) return done(new Error("Email not found"), null);
     return done(null, {
       name: profile.displayName,
-      photo: profile.photos && profile.photos[0] ? profile.photos[0].value : "",
       email: profile.emails[0].value
     });
   }
@@ -102,59 +95,27 @@ passport.deserializeUser((obj, done) => done(null, obj));
 function validateMessage(msg) {
   if (!msg || typeof msg !== 'string') return false;
   const trimmed = msg.trim();
-  // 空文字または5000文字超えを拒否
-  if (trimmed.length === 0 || trimmed.length > 5000) return false;
-  return true;
+  return trimmed.length > 0 && trimmed.length <= 5000;
 }
 
 function requireAdmin(req, res, next) {
-  if (req.isAuthenticated() && ADMIN_EMAILS.includes(req.user.email)) {
-    return next();
-  }
+  if (req.isAuthenticated() && ADMIN_EMAILS.includes(req.user.email)) return next();
   return res.status(403).json({ error: '権限がありません' });
 }
 
 /** ----------------------------------------------------------------
- * ルート定義
+ * ルート定義 (順序が重要)
  * ---------------------------------------------------------------- */
 
-// すべてのAPIルートに秒間制限を適用
+// 1. まずAPI全体に「秒間制限」を適用
 app.use('/api/', apiBurstLimiter);
 
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-
-app.get('/auth/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/' }),
-  (req, res) => res.redirect('/#contact')
-);
-
-app.get('/logout', (req, res) => {
-  req.logout(() => res.redirect('/'));
-});
-
-// 1. ユーザー情報取得
-app.get('/api/user', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.json({ 
-      isLoggedIn: true, 
-      user: req.user, 
-      isAdmin: ADMIN_EMAILS.includes(req.user.email) 
-    });
-  } else {
-    res.json({ isLoggedIn: false });
-  }
-});
-
-// 2. お問い合わせ送信（二段階の制限適用）
+// 2. お問い合わせ送信（ここで「5分間制限」を重ねて適用）
+// 制限に引っかかった場合、ここより下の「(req, res) => { ... }」内は実行されません。
 app.post('/api/contact', contactStrictLimiter, async (req, res) => {
   if (!req.isAuthenticated()) return res.status(401).json({ error: 'ログインが必要です' });
 
-  // 簡易CSRF/Originチェック
-  const origin = req.get('origin');
-  if (origin && !origin.includes('onrender.com') && !origin.includes('localhost')) {
-     return res.status(403).json({ error: '不正なリクエスト元です' });
-  }
-
+  // バリデーション
   if (!validateMessage(req.body.message)) {
     return res.status(400).json({ error: '入力内容が不正です' });
   }
@@ -168,10 +129,10 @@ app.post('/api/contact', contactStrictLimiter, async (req, res) => {
     timestamp: new Date().toLocaleString('ja-JP')
   };
 
-  // メモリ負荷対策：配列が大きくなりすぎないよう制限（DB未実装時のみの暫定処置）
-  if (allMessages.length > 1000) allMessages.shift(); 
   allMessages.push(newMessage);
+  if (allMessages.length > 1000) allMessages.shift();
 
+  // --- Discord通知 (制限を通過した後に実行) ---
   if (process.env.DISCORD_WEBHOOK_URL) {
     try {
       await axios.post(process.env.DISCORD_WEBHOOK_URL, {
@@ -186,45 +147,36 @@ app.post('/api/contact', contactStrictLimiter, async (req, res) => {
           footer: { text: `Time: ${newMessage.timestamp}` }
         }]
       });
-    } catch (e) { console.error("Discord Error"); }
+    } catch (e) { console.error("Discord Webhook Error"); }
   }
+
   res.json({ success: true });
 });
 
-// 3. 自分のメッセージ取得
-app.get('/api/my-messages', (req, res) => {
-  if (!req.isAuthenticated()) return res.json({ messages: [] });
-  const mine = allMessages.filter(m => m.email === req.user.email);
-  res.json({ messages: mine });
+// その他のAPI
+app.get('/api/user', (req, res) => {
+  res.json(req.isAuthenticated() ? { isLoggedIn: true, user: req.user, isAdmin: ADMIN_EMAILS.includes(req.user.email) } : { isLoggedIn: false });
 });
 
-// 4. 管理者専用：全取得
+app.get('/api/my-messages', (req, res) => {
+  if (!req.isAuthenticated()) return res.json({ messages: [] });
+  res.json({ messages: allMessages.filter(m => m.email === req.user.email) });
+});
+
 app.get('/api/admin/messages', requireAdmin, (req, res) => {
   res.json({ messages: allMessages });
 });
 
-// 5. 管理者専用：回答送信
-app.post('/api/admin/reply', requireAdmin, (req, res) => {
-  const { messageId, replyContent } = req.body;
-  if (!validateMessage(replyContent)) return res.status(400).json({ error: '内容不正' });
-
-  const msg = allMessages.find(m => m.id === messageId);
-  if (msg) {
-    msg.reply = replyContent;
-    res.json({ success: true });
-  } else {
-    res.status(404).json({ error: 'Not found' });
-  }
-});
+// 認証ルート
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => res.redirect('/#contact'));
+app.get('/logout', (req, res) => req.logout(() => res.redirect('/')));
 
 /** ----------------------------------------------------------------
- * サーバー起動とタイムアウト対策 (DoS/Slowloris)
+ * サーバー起動
  * ---------------------------------------------------------------- */
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () => {
-  console.log(`🛡️ Extremely Secure Server running on port ${PORT}`);
-});
+const server = app.listen(PORT, () => console.log(`🛡️ Strict Security Server on ${PORT}`));
 
-// コネクションのタイムアウトを厳しく設定
-server.headersTimeout = 5000; // ヘッダー読み取り制限 5秒
-server.requestTimeout = 10000; // リクエスト全体制限 10秒
+server.headersTimeout = 5000;
+server.requestTimeout = 10000;
