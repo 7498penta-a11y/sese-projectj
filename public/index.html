@@ -9,7 +9,7 @@
                  script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; 
                  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
                  font-src https://fonts.gstatic.com; 
-                 img-src 'self' https://*.googleusercontent.com https: data:;
+                 img-src 'self' https://*.googleusercontent.com https: data:; 
                  connect-src 'self' https://discord.com;">
   
   <meta property="og:title" content="SESE SERVER | 公式サイト" />
@@ -435,6 +435,7 @@
           
           if (data.isLoggedIn) {
             currentUser = data.user;
+            // サーバー側で取得した photo を使用
             const safePhoto = escapeHTML(data.user.photo);
             ua.innerHTML = `<div class="flex items-center gap-2"><img src="${safePhoto}" class="w-8 h-8 rounded-full border border-gray-200 dark:border-slate-700 shadow-sm"><a href="/logout" class="text-[10px] font-black text-red-500 hover:underline">ログアウト</a></div>`;
             
@@ -447,7 +448,6 @@
           }
           renderContactArea();
         } catch (e) { 
-            // ログインしていない、またはAPIがない場合のデフォルト表示
             const ua = document.getElementById('user-area');
             if(ua) ua.innerHTML = `<a href="/auth/google" class="text-xs font-black text-indigo-600 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-lg">ログイン</a>`;
         }
@@ -515,7 +515,6 @@
             throw new Error(result.error || '送信失敗');
           }
         } catch (err) { 
-          // alert('エラーが発生しました: ' + err.message); // デバッグ用
           alert('送信できませんでした（デモモードまたはサーバーエラー）');
         } finally {
           btn.disabled = false;
