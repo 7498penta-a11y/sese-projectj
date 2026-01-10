@@ -16,7 +16,8 @@ const app = express();
  * データベース設定 (MongoDB)
  * ---------------------------------------------------------------- */
 // 環境変数 MONGODB_URI が設定されていない場合はローカルに繋ぎに行く設定
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/seseDB';
+const MONGODB_URI = process.env.MONGODB_URI;
+
 
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('🍃 MongoDB Connected'))
