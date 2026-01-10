@@ -92,25 +92,69 @@
     </section>
 
     <section id="page-guidelines" class="page hidden fade-in">
-        <div class="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
-            <div class="bg-slate-900 p-10 text-white text-center">
-              <h2 class="text-3xl font-black tracking-tight">ガイドライン</h2>
-            </div>
-            <div class="p-8 md:p-14 space-y-12 dark:text-slate-300 font-bold">
-              <p>第一条：本規約は、sese_PAP_1122のDiscordサーバーでの規則を指します。</p>
-              <p>第二条：暴言、スパム、なりすまし等の迷惑行為を禁止します。</p>
-            </div>
+      <div class="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+        <div class="bg-slate-900 p-10 text-white text-center">
+          <h2 class="text-3xl font-black tracking-tight">ガイドライン</h2>
+          <p class="text-slate-400 mt-2 text-sm font-bold">安心して利用するために</p>
         </div>
+        <div class="p-8 md:p-14 space-y-12 dark:text-slate-300">
+          <div class="space-y-4">
+            <h3 class="text-xl font-black flex items-center gap-2 text-indigo-600">
+              <span class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-sm">01</span> 禁止事項
+            </h3>
+            <ul class="grid gap-3 list-none font-bold">
+              <li class="bg-gray-50 dark:bg-slate-900/50 p-4 rounded-xl">・他者への誹謗中傷、嫌がらせ行為</li>
+              <li class="bg-gray-50 dark:bg-slate-900/50 p-4 rounded-xl">・スパム、宣伝目的の過度な投稿</li>
+              <li class="bg-gray-50 dark:bg-slate-900/50 p-4 rounded-xl">・公序良俗に反するコンテンツの共有</li>
+            </ul>
+          </div>
+          <div class="space-y-4">
+            <h3 class="text-xl font-black flex items-center gap-2 text-indigo-600">
+              <span class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-sm">02</span> 処罰について
+            </h3>
+            <p class="font-bold leading-relaxed">規約違反が確認された場合、運営の判断により「警告」「タイムアウト」「BAN」などの措置を段階的に実施します。</p>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="page-staff" class="page hidden fade-in space-y-12">
-        <h2 class="text-3xl font-black text-center dark:text-white">運営チーム</h2>
-        <div class="grid md:grid-cols-2 gap-8">
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-slate-700">
-              <h3 class="font-black text-indigo-600 mb-4">👑 オーナー</h3>
-              <p class="font-black">sese_PAP_1122 / MRF_4922</p>
+      <h2 class="text-3xl font-black text-center dark:text-white">運営チーム</h2>
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-slate-700">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-2xl font-black shadow-lg">👑</div>
+            <div>
+              <h3 class="font-black text-xl dark:text-white">オーナー</h3>
+              <p class="text-sm text-indigo-600 font-bold uppercase tracking-widest">Ownership</p>
             </div>
+          </div>
+          <div class="space-y-2 font-bold">
+            <p class="p-3 bg-gray-50 dark:bg-slate-900 rounded-xl">sese_PAP_1122</p>
+            <p class="p-3 bg-gray-50 dark:bg-slate-900 rounded-xl">MRF_4922</p>
+          </div>
         </div>
+      </div>
+    </section>
+
+    <section id="page-serverinfo" class="page hidden fade-in space-y-8">
+      <h2 class="text-3xl font-black text-center dark:text-white">サーバー動向</h2>
+      <div class="bg-indigo-600 rounded-[2.5rem] p-10 text-white shadow-xl">
+        <div class="flex flex-wrap gap-10 justify-around text-center">
+          <div>
+            <div class="text-4xl font-black mb-1">100+</div>
+            <div class="text-xs font-bold opacity-70 uppercase">Members</div>
+          </div>
+          <div>
+            <div class="text-4xl font-black mb-1">24/7</div>
+            <div class="text-xs font-bold opacity-70 uppercase">Online</div>
+          </div>
+          <div>
+            <div class="text-4xl font-black mb-1">Clean</div>
+            <div class="text-xs font-bold opacity-70 uppercase">Environment</div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="page-contact" class="page hidden fade-in max-w-2xl mx-auto">
@@ -126,15 +170,15 @@
           </div>
           <div id="contact-content" class="hidden">
             <div id="contact-guest" class="hidden">
-              <p class="text-gray-500 mb-8 font-bold">Googleログインが必要です。</p>
-              <a href="/auth/google" class="inline-block bg-indigo-600 text-white px-10 py-4 rounded-2xl font-black shadow-lg">Googleでログイン</a>
+              <p class="text-gray-500 mb-8 font-bold">お問い合わせにはGoogleログインが必要です。</p>
+              <a href="/auth/google" class="inline-block bg-indigo-600 text-white px-10 py-4 rounded-2xl font-black shadow-lg hover:bg-indigo-700 transition">Googleでログイン</a>
             </div>
             <div id="contact-form-container" class="hidden text-left space-y-4">
               <div class="flex items-center gap-4 bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-2xl">
-                <img id="user-photo" src="" class="w-12 h-12 rounded-full border-2 border-white">
+                <img id="user-photo" src="" class="w-12 h-12 rounded-full border-2 border-white shadow-sm">
                 <span id="user-name" class="font-black dark:text-white"></span>
               </div>
-              <textarea id="contact-message" rows="6" class="w-full p-6 bg-gray-50 dark:bg-slate-900 border rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 font-bold dark:text-white" placeholder="メッセージを入力..."></textarea>
+              <textarea id="contact-message" rows="6" class="w-full p-6 bg-gray-50 dark:bg-slate-900 border dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 font-bold dark:text-white" placeholder="サーバーに関する質問や通報などを入力してください..."></textarea>
               <button id="submit-btn" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-xl hover:bg-indigo-700 transition">送信する</button>
             </div>
           </div>
@@ -142,22 +186,32 @@
       </div>
     </section>
 
+    <section id="page-privacy" class="page hidden fade-in">
+      <div class="bg-white dark:bg-slate-800 p-10 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-slate-700">
+        <h2 class="text-2xl font-black mb-6 dark:text-white">プライバシーポリシー</h2>
+        <div class="space-y-6 font-bold dark:text-slate-400">
+          <p>本サイトでは、認証と本人確認のためGoogleアカウント情報を取得しますが、これをお問い合わせ対応以外の目的で使用することはありません。</p>
+          <p>取得したデータ（名前、メールアドレス、アイコン）は適切に管理され、本人の同意なく第三者に提供されることはありません。</p>
+        </div>
+      </div>
+    </section>
+
     <section id="page-admin" class="page hidden fade-in space-y-8">
       <h2 class="text-3xl font-black text-center text-red-600">管理パネル</h2>
-      <div class="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-red-100">
+      <div class="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-red-100 dark:border-red-900/30">
         <div id="admin-message-list" class="space-y-4">
-          <p class="text-center text-gray-400 py-10 font-bold">読み込み中...</p>
+          <p class="text-center text-gray-400 py-10 font-bold">メッセージを読み込み中...</p>
         </div>
       </div>
     </section>
 
     <dialog id="admin-reply-modal" class="bg-transparent p-0 w-full max-w-lg">
-      <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-2xl border dark:border-slate-700">
+      <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-2xl border dark:border-slate-700 mx-4">
         <h3 class="font-black text-lg mb-4 dark:text-white">回答を作成</h3>
-        <textarea id="reply-textarea" class="w-full p-4 bg-gray-50 dark:bg-slate-900 border dark:border-slate-700 dark:text-white rounded-xl mb-4 outline-none focus:ring-2 focus:ring-indigo-500" rows="4"></textarea>
+        <textarea id="reply-textarea" class="w-full p-4 bg-gray-50 dark:bg-slate-900 border dark:border-slate-700 dark:text-white rounded-xl mb-4 outline-none focus:ring-2 focus:ring-indigo-500 font-bold" rows="4" placeholder="回答を入力してください..."></textarea>
         <div class="flex justify-end gap-2">
-          <button id="modal-cancel" class="px-4 py-2 bg-gray-200 dark:bg-slate-700 dark:text-white rounded-lg font-bold text-xs">キャンセル</button>
-          <button id="modal-send" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold text-xs">送信</button>
+          <button id="modal-cancel" class="px-6 py-2 bg-gray-200 dark:bg-slate-700 dark:text-white rounded-lg font-bold text-xs hover:bg-gray-300 transition">キャンセル</button>
+          <button id="modal-send" class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-bold text-xs hover:bg-indigo-700 transition">送信</button>
         </div>
       </div>
     </dialog>
@@ -175,7 +229,8 @@
       const SUBMIT_COOLDOWN = 10000;
       
       function escapeHTML(str) {
-        return str ? DOMPurify.sanitize(str) : "";
+        if (!str) return "";
+        return DOMPurify.sanitize(str);
       }
 
       function router(p) {
@@ -184,6 +239,7 @@
           const isActive = btn.dataset.route === p;
           btn.classList.toggle('bg-indigo-50', isActive);
           btn.classList.toggle('text-indigo-600', isActive);
+          btn.classList.toggle('dark:bg-indigo-900/20', isActive);
         });
         const target = document.getElementById(`page-${p}`);
         if(target) target.classList.remove('hidden');
@@ -211,13 +267,17 @@
           const ua = document.getElementById('user-area');
           if (data.isLoggedIn) {
             currentUser = data.user;
-            ua.innerHTML = `<div class="flex items-center gap-2"><img src="${escapeHTML(data.user.photo)}" class="w-8 h-8 rounded-full border shadow-sm"><a href="/logout" class="text-[10px] font-black text-red-500">ログアウト</a></div>`;
+            ua.innerHTML = `
+              <div class="flex items-center gap-2">
+                <img src="${escapeHTML(data.user.photo)}" class="w-8 h-8 rounded-full border shadow-sm">
+                <a href="/logout" class="text-[10px] font-black text-red-500 hover:underline">ログアウト</a>
+              </div>`;
             if (data.isAdmin) document.getElementById('nav-admin').classList.remove('hidden');
           } else {
-            ua.innerHTML = `<a href="/auth/google" class="text-xs font-black text-indigo-600 px-4 py-2 bg-indigo-50 rounded-lg">ログイン</a>`;
+            ua.innerHTML = `<a href="/auth/google" class="text-xs font-black text-indigo-600 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">ログイン</a>`;
           }
           renderContactArea();
-        } catch (e) { }
+        } catch (e) { console.error("Login check failed"); }
       }
 
       function renderContactArea() {
@@ -240,9 +300,10 @@
       async function submitContact() {
         const msgInput = document.getElementById('contact-message');
         const msg = msgInput.value.trim();
-        if (!msg) return alert('内容を入力してください');
+        if (!msg) return alert('メッセージを入力してください');
+        
         const now = Date.now();
-        if (now - lastSubmitTime < SUBMIT_COOLDOWN) return alert('送信間隔が短すぎます');
+        if (now - lastSubmitTime < SUBMIT_COOLDOWN) return alert('送信間隔が短すぎます。少し待ってから再度送信してください。');
         
         try {
           const res = await fetch('/api/contact', {
@@ -252,12 +313,14 @@
           });
           const result = await res.json();
           if(result.success) {
-            alert('送信しました！');
+            alert('送信が完了しました！');
             msgInput.value = '';
             lastSubmitTime = Date.now();
             loadMyMessages();
+          } else {
+            alert('エラー: ' + (result.error || '送信に失敗しました'));
           }
-        } catch (err) { alert('送信失敗'); }
+        } catch (err) { alert('通信エラーが発生しました'); }
       }
 
       async function loadMyMessages() {
@@ -270,11 +333,11 @@
           if(answered.length > 0) {
             document.getElementById('my-inbox').classList.remove('hidden');
             list.innerHTML = answered.map(m => `
-              <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border-l-4 border-green-500">
+              <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border-l-4 border-green-500 fade-in">
                 <p class="text-[10px] text-gray-400 mb-1 font-bold">質問: ${escapeHTML(m.content)}</p>
                 <p class="text-sm font-black dark:text-white">回答: ${escapeHTML(m.reply)}</p>
               </div>
-            `).reverse().join('');
+            `).join('');
           }
         } catch (e) { }
       }
@@ -283,42 +346,56 @@
         const list = document.getElementById('admin-message-list');
         try {
           const res = await fetch('/api/admin/messages');
-          if (res.status === 403) { list.innerHTML = '権限なし'; return; }
+          if (res.status === 403) { list.innerHTML = '閲覧権限がありません'; return; }
           const data = await res.json();
-          // 重要: m.id ではなく m._id (MongoDB用) を参照
+          if (data.messages.length === 0) {
+            list.innerHTML = '<p class="text-center text-gray-400 py-10 font-bold">まだお問い合わせはありません</p>';
+            return;
+          }
           list.innerHTML = data.messages.map(m => `
-            <div class="p-6 bg-gray-50 dark:bg-slate-900 rounded-3xl border mb-4">
+            <div class="p-6 bg-gray-50 dark:bg-slate-900 rounded-3xl border dark:border-slate-800 mb-4 fade-in">
               <div class="flex justify-between text-xs font-black text-indigo-600 mb-2">
                 <span>${escapeHTML(m.userName)} (${escapeHTML(m.email)})</span>
-                <span class="text-gray-400">${escapeHTML(m.timestamp)}</span>
+                <span class="text-gray-400 font-normal">${escapeHTML(m.timestamp)}</span>
               </div>
-              <p class="text-sm font-bold dark:text-slate-300 mb-4">${escapeHTML(m.content)}</p>
-              ${m.reply ? `<div class="text-xs text-green-600 font-bold mb-4">回答済み: ${escapeHTML(m.reply)}</div>` : ''}
-              <button data-msg-id="${m._id}" class="reply-btn text-[10px] font-black bg-indigo-600 text-white px-5 py-2 rounded-full">回答する</button>
+              <p class="text-sm font-bold dark:text-slate-300 mb-4 break-words">${escapeHTML(m.content)}</p>
+              ${m.reply ? `<div class="text-xs text-green-600 font-bold mb-4 bg-green-50 dark:bg-green-900/20 p-3 rounded-xl">回答済み: ${escapeHTML(m.reply)}</div>` : ''}
+              <button data-msg-id="${m._id}" class="reply-btn text-[10px] font-black bg-indigo-600 text-white px-5 py-2 rounded-full hover:bg-indigo-700 transition shadow-md">回答する / 編集</button>
             </div>
-          `).reverse().join('');
+          `).join('');
 
           document.querySelectorAll('.reply-btn').forEach(btn => {
             btn.addEventListener('click', () => openReplyModal(btn.dataset.msgId));
           });
-        } catch (e) { list.innerHTML = '取得失敗'; }
+        } catch (e) { list.innerHTML = 'データの取得に失敗しました'; }
       }
 
       const modal = document.getElementById('admin-reply-modal');
       const replyText = document.getElementById('reply-textarea');
       let currentReplyId = null;
 
-      function openReplyModal(id) { currentReplyId = id; replyText.value = ''; modal.showModal(); }
+      function openReplyModal(id) {
+        currentReplyId = id;
+        replyText.value = '';
+        modal.showModal();
+      }
+
       document.getElementById('modal-cancel').addEventListener('click', () => modal.close());
       document.getElementById('modal-send').addEventListener('click', async () => {
-        if(!currentReplyId || !replyText.value) return;
+        if(!currentReplyId || !replyText.value.trim()) return;
         try {
           const res = await fetch('/api/admin/reply', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ messageId: currentReplyId, replyContent: replyText.value })
+            body: JSON.stringify({ messageId: currentReplyId, replyContent: replyText.value.trim() })
           });
-          if((await res.json()).success) { modal.close(); loadAdminMessages(); }
+          const result = await res.json();
+          if(result.success) {
+            modal.close();
+            loadAdminMessages();
+          } else {
+            alert('保存に失敗しました');
+          }
         } catch (e) { alert('通信エラー'); }
       });
     });
