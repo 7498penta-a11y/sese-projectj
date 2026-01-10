@@ -258,7 +258,7 @@
                 <h3 class="font-black text-indigo-600 dark:text-indigo-400 mb-2 border-l-4 border-indigo-500 pl-3">1. 収集する情報</h3>
                 <p class="text-sm font-bold text-gray-600 dark:text-slate-400 leading-relaxed">
                     本サイトでは、お問い合わせ機能の利用時に以下の情報を収集します。<br>
-                    ・Googleアカウント情報（ユーザー名、メールアドレス、プロフィール画像）<br>
+                    ・Googleアカウント情報（メールアドレス、プロフィール画像）<br>
                     ・送信されたメッセージ内容
                 </p>
             </div>
@@ -515,7 +515,7 @@
             throw new Error(result.error || '送信失敗');
           }
         } catch (err) { 
-          alert('送信できませんでした（デモモードまたはサーバーエラー）');
+          alert('送信できませんでした（メッセージの送信回数が多すぎます）');
         } finally {
           btn.disabled = false;
           btn.innerText = originalText;
