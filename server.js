@@ -15,13 +15,14 @@ const app = express();
 /** ----------------------------------------------------------------
  * データベース設定 (MongoDB)
  * ---------------------------------------------------------------- */
+// 環境変数 MONGODB_URI が設定されていない場合はローカルに繋ぎに行く設定
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/seseDB';
 
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('🍃 MongoDB Connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// メッセージスキーマの定義
+// メッセージの保存形式（スキーマ）を定義
 const messageSchema = new mongoose.Schema({
   userName: String,
   email: String,
@@ -34,13 +35,10 @@ const messageSchema = new mongoose.Schema({
 const Message = mongoose.model('Message', messageSchema);
 
 /** ----------------------------------------------------------------
- * セキュリティ設定 1: インフラ・プロキシ設定
+ * セキュリティ・ミドルウェア設定
  * ---------------------------------------------------------------- */
 app.set('trust proxy', 1);
 
-/** ----------------------------------------------------------------
- * セキュリティ設定 2: 防御ミドルウェア (HelmetのCSPを調整)
- * ---------------------------------------------------------------- */
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -59,26 +57,22 @@ app.use(cookieParser());
 app.use(express.static('public'));
 
 /** ----------------------------------------------------------------
- * セキュリティ設定 3: レート制限
+ * レート制限 (連投対策)
  * ---------------------------------------------------------------- */
 const apiBurstLimiter = rateLimit({
   windowMs: 1000, 
   max: 3,
-  message: { error: 'リクエストが速すぎます。' },
-  standardHeaders: true,
-  legacyHeaders: false,
+  message: { error: 'リクエストが速すぎます。' }
 });
 
 const contactStrictLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, 
   max: 2,
-  message: { error: '5分間に2回までしか送信できません。' },
-  standardHeaders: true,
-  legacyHeaders: false,
+  message: { error: '5分間に2回までしか送信できません。' }
 });
 
 /** ----------------------------------------------------------------
- * セッション & パスポート設定
+ * セッション & パスポート
  * ---------------------------------------------------------------- */
 app.use(session({
   secret: process.env.SESSION_SECRET || 'sese_secure_key_1122',
@@ -105,7 +99,6 @@ passport.use(new GoogleStrategy({
     proxy: true
   },
   (accessToken, refreshToken, profile, done) => {
-    if (!profile.emails || !profile.emails[0]) return done(new Error("Email not found"), null);
     return done(null, {
       name: profile.displayName,
       email: profile.emails[0].value,
@@ -118,12 +111,11 @@ passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
 /** ----------------------------------------------------------------
- * ヘルパー・ミドルウェア
+ * 補助関数・管理者チェック
  * ---------------------------------------------------------------- */
 function validateMessage(msg) {
   if (!msg || typeof msg !== 'string') return false;
-  const trimmed = msg.trim();
-  return trimmed.length > 0 && trimmed.length <= 5000;
+  return msg.trim().length > 0 && msg.trim().length <= 5000;
 }
 
 function requireAdmin(req, res, next) {
@@ -132,21 +124,21 @@ function requireAdmin(req, res, next) {
 }
 
 /** ----------------------------------------------------------------
- * ルート定義
+ * API ルート
  * ---------------------------------------------------------------- */
 
+// 全APIにバースト制限を適用
 app.use('/api/', apiBurstLimiter);
 
-// お問い合わせ送信 (DB保存)
+// お問い合わせ送信（MongoDBへ保存）
 app.post('/api/contact', contactStrictLimiter, async (req, res) => {
   if (!req.isAuthenticated()) return res.status(401).json({ error: 'ログインが必要です' });
 
   if (!validateMessage(req.body.message)) {
-    return res.status(400).json({ error: '入力内容が不正です' });
+    return res.status(400).json({ error: '内容が不正です' });
   }
 
   try {
-    // MongoDBに保存
     const newMessage = new Message({
       userName: req.user.name,
       email: req.user.email,
@@ -154,9 +146,9 @@ app.post('/api/contact', contactStrictLimiter, async (req, res) => {
       photo: req.user.photo
     });
     
-    await newMessage.save();
+    await newMessage.save(); // ここでDBに保存される
 
-    // Discord通知
+    // Discord Webhook通知
     if (process.env.DISCORD_WEBHOOK_URL) {
       try {
         await axios.post(process.env.DISCORD_WEBHOOK_URL, {
@@ -165,23 +157,22 @@ app.post('/api/contact', contactStrictLimiter, async (req, res) => {
             color: 3447003,
             thumbnail: { url: req.user.photo },
             fields: [
+              { name: "👤 名前", value: req.user.name, inline: true },
               { name: "📧 Email", value: req.user.email, inline: true },
               { name: "📝 内容", value: req.body.message }
-            ],
-            footer: { text: `Time: ${newMessage.timestamp}` }
+            ]
           }]
         });
-      } catch (e) { console.error("Discord Webhook Error", e.message); }
+      } catch (e) { console.error("Discord通知失敗"); }
     }
 
     res.json({ success: true });
   } catch (e) {
-    console.error(e);
     res.status(500).json({ error: '保存に失敗しました' });
   }
 });
 
-// ユーザー情報取得
+// ログイン中のユーザー情報
 app.get('/api/user', (req, res) => {
   res.json(req.isAuthenticated() ? { 
     isLoggedIn: true, 
@@ -190,48 +181,44 @@ app.get('/api/user', (req, res) => {
   } : { isLoggedIn: false });
 });
 
-// 自分のメッセージ履歴取得 (DBから取得)
+// 自分の履歴取得（MongoDBから検索）
 app.get('/api/my-messages', async (req, res) => {
   if (!req.isAuthenticated()) return res.json({ messages: [] });
   try {
-    // 自分のメールアドレスで検索し、新しい順にソート
     const messages = await Message.find({ email: req.user.email }).sort({ _id: -1 });
     res.json({ messages });
   } catch (e) {
-    res.status(500).json({ error: '取得エラー' });
+    res.status(500).json({ error: '取得失敗' });
   }
 });
 
-// 管理者: 全メッセージ取得 (DBから取得)
+// 管理者：全件取得
 app.get('/api/admin/messages', requireAdmin, async (req, res) => {
   try {
     const messages = await Message.find().sort({ _id: -1 });
     res.json({ messages });
   } catch (e) {
-    res.status(500).json({ error: '取得エラー' });
+    res.status(500).json({ error: '取得失敗' });
   }
 });
 
-// 管理者: 返信機能 (DB更新)
+// 管理者：返信の保存
 app.post('/api/admin/reply', requireAdmin, async (req, res) => {
   const { messageId, replyContent } = req.body;
-  if (!messageId || !replyContent) return res.status(400).json({ error: '不足している情報があります' });
-
   try {
     await Message.findByIdAndUpdate(messageId, { reply: replyContent });
     res.json({ success: true });
   } catch (e) {
-    res.status(500).json({ error: '返信の保存に失敗しました' });
+    res.status(500).json({ error: '返信失敗' });
   }
 });
 
-// Google認証ルート
+/** ----------------------------------------------------------------
+ * 認証ルート
+ * ---------------------------------------------------------------- */
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => res.redirect('/#contact'));
 app.get('/logout', (req, res) => req.logout(() => res.redirect('/')));
 
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () => console.log(`🛡️ Strict Security Server on ${PORT}`));
-
-server.headersTimeout = 5000;
-server.requestTimeout = 10000;
+app.listen(PORT, () => console.log(`🛡️ Server running on port ${PORT}`));
