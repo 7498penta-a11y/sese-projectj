@@ -145,7 +145,6 @@ app.post('/api/contact', contactStrictLimiter, async (req, res) => {
           color: 3447003,
           thumbnail: { url: req.user.photo }, // Discord通知にもアイコンを追加
           fields: [
-            { name: "👤 ユーザー", value: req.user.name, inline: true },
             { name: "📧 Email", value: req.user.email, inline: true },
             { name: "📝 内容", value: req.body.message }
           ],
