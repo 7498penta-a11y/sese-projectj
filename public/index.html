@@ -559,6 +559,7 @@
             return;
           }
           
+          // 【変更】IDを m.id から m._id に修正 (MongoDB対応)
           list.innerHTML = data.messages.map(m => `
             <div class="p-6 bg-gray-50 dark:bg-slate-900/50 rounded-3xl border border-gray-100 dark:border-slate-700 mb-4">
               <div class="flex justify-between items-start mb-2">
@@ -567,7 +568,7 @@
               </div>
               <p class="text-sm font-bold text-gray-700 dark:text-slate-300 mb-4 break-words">${escapeHTML(m.content)}</p>
               ${m.reply ? `<div class="p-2 bg-green-100 dark:bg-green-900/30 rounded text-xs text-green-700 dark:text-green-300 font-bold mb-4">回答済み: ${escapeHTML(m.reply)}</div>` : ''}
-              <button data-msg-id="${escapeHTML(m.id)}" class="reply-btn text-[10px] font-black bg-indigo-600 text-white px-5 py-2 rounded-full hover:bg-indigo-700 transition">回答する</button>
+              <button data-msg-id="${escapeHTML(m._id)}" class="reply-btn text-[10px] font-black bg-indigo-600 text-white px-5 py-2 rounded-full hover:bg-indigo-700 transition">回答する</button>
             </div>
           `).reverse().join('');
 
