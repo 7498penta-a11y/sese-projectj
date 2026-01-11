@@ -12,16 +12,15 @@
                  img-src 'self' https://*.googleusercontent.com https: data:; 
                  connect-src 'self' https://discord.com;">
   
-<link rel="icon" href="/icon.png" type="image/png">
+  <meta property="og:title" content="SESE SERVER | 公式サイト" />
+  <meta property="og:description" content="オーナー sese_PAP_1122 & MRF_4922 が統括する、規約に守られたクリーンなDiscordサーバーです。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sesesaba.net.com/" />
+  <meta property="og:image" content="https://sesesaba.net/icon.png" />
+  <meta name="twitter:card" content="summary_large_image" />
 
-<meta property="og:title" content="SESE SERVER | 公式サイト" />
-<meta property="og:description" content="オーナー sese_PAP_1122 & MRF_4922 が統括する、規約に守られたクリーンなDiscordサーバーです。" />
-<meta property="og:type" content="website">
-
-<meta property="og:image" content="https://sesesaba.net/icon.png" />
-
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://sesesaba.net/icon.png">
+  <link rel="icon" href="/icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icon.png">
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -442,7 +441,6 @@
           
           if (data.isLoggedIn) {
             currentUser = data.user;
-            // サーバー側で取得した photo を使用
             const safePhoto = escapeHTML(data.user.photo);
             ua.innerHTML = `<div class="flex items-center gap-2"><img src="${safePhoto}" class="w-8 h-8 rounded-full border border-gray-200 dark:border-slate-700 shadow-sm"><a href="/logout" class="text-[10px] font-black text-red-500 hover:underline">ログアウト</a></div>`;
             
@@ -566,7 +564,9 @@
             return;
           }
           
-          list.innerHTML = data.messages.map(m => `
+          list.innerHTML = data.messages.map(m => {
+            const mId = escapeHTML(m.id || m._id);
+            return `
             <div class="p-6 bg-gray-50 dark:bg-slate-900/50 rounded-3xl border border-gray-100 dark:border-slate-700 mb-4">
               <div class="flex justify-between items-start mb-2">
                 <span class="font-black text-indigo-600 text-xs">${escapeHTML(m.userName)} (${escapeHTML(m.email)})</span>
@@ -574,15 +574,35 @@
               </div>
               <p class="text-sm font-bold text-gray-700 dark:text-slate-300 mb-4 break-words">${escapeHTML(m.content)}</p>
               ${m.reply ? `<div class="p-2 bg-green-100 dark:bg-green-900/30 rounded text-xs text-green-700 dark:text-green-300 font-bold mb-4">回答済み: ${escapeHTML(m.reply)}</div>` : ''}
-              <button data-msg-id="${escapeHTML(m.id || m._id)}" class="reply-btn text-[10px] font-black bg-indigo-600 text-white px-5 py-2 rounded-full hover:bg-indigo-700 transition">回答する</button>
+              <div class="flex gap-2">
+                <button data-msg-id="${mId}" class="reply-btn text-[10px] font-black bg-indigo-600 text-white px-5 py-2 rounded-full hover:bg-indigo-700 transition">回答する</button>
+                <button data-msg-id="${mId}" class="delete-btn text-[10px] font-black bg-red-500 text-white px-5 py-2 rounded-full hover:bg-red-600 transition">削除</button>
+              </div>
             </div>
-          `).reverse().join('');
+          `;}).reverse().join('');
 
           document.querySelectorAll('.reply-btn').forEach(btn => {
             btn.addEventListener('click', () => openReplyModal(btn.dataset.msgId));
           });
+          
+          document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => deleteMessage(btn.dataset.msgId));
+          });
 
         } catch (e) { list.innerHTML = '読み込み失敗'; }
+      }
+
+      async function deleteMessage(id) {
+        if(!confirm('このお問い合わせ内容を削除してもよろしいですか？')) return;
+        try {
+          const res = await fetch(`/api/admin/message/${id}`, { method: 'DELETE' });
+          const result = await res.json();
+          if(result.success) {
+            loadAdminMessages();
+          } else {
+            alert('削除失敗: ' + (result.error || '不明なエラー'));
+          }
+        } catch (e) { alert('通信エラーが発生しました'); }
       }
 
       // 管理者モーダル
