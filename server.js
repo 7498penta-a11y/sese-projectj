@@ -190,6 +190,16 @@ app.post('/api/admin/reply', requireAdmin, async (req, res) => {
   }
 });
 
+app.delete('/api/admin/message/:id', requireAdmin, async (req, res) => {
+  try {
+    const deleted = await Message.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'メッセージが見つかりません' });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: '削除に失敗しました' });
+  }
+});
+
 /** ----------------------------------------------------------------
  * 認証ルート
  * ---------------------------------------------------------------- */
