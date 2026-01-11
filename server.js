@@ -8,7 +8,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const hpp = require('hpp');
-const mongoose = require('mongoose'); // MongoDB接続用に追加
+const mongoose = require('mongoose');
 
 const app = express();
 
@@ -37,67 +37,42 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://cdnjs.cloudflare.com"],
+      scriptSrc: ["'self' Hex", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://cdnjs.cloudflare.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https://*.googleusercontent.com", "https:"],
+      imgSrc: ["'self'", "https://*.googleusercontent.com", "https:", "data:"],
       connectSrc: ["'self'", "https://discord.com"],
     },
   },
 }));
 app.use(hpp());
-app.use(express.json({ limit: '10kb' }));
 app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// 静的ファイルの提供（icon.pngなどがここに含まれます）
 app.use(express.static('public'));
 
 /** ----------------------------------------------------------------
- * レート制限
- * ---------------------------------------------------------------- */
-const apiBurstLimiter = rateLimit({
-  windowMs: 1000, 
-  max: 5,
-  message: { error: 'リクエストが速すぎます。' }
-});
-
-const contactStrictLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000, 
-  max: 3,
-  message: { error: '5分間に3回までしか送信できません。' }
-});
-
-/** ----------------------------------------------------------------
- * セッション & パスポート設定
+ * セッション & Passport (Google OAuth)
  * ---------------------------------------------------------------- */
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'sese_secure_key_1122',
+  secret: process.env.SESSION_SECRET || 'sese-secret-key',
   resave: false,
   saveUninitialized: false,
-  name: 'sessionId',
-  cookie: { 
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 24 * 60 * 60 * 1000 
-  }
+  cookie: { secure: process.env.NODE_ENV === 'production', httpOnly: true, maxAge: 24 * 60 * 60 * 1000 }
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-const ADMIN_EMAILS = (process.env.ADMIN_EMAIL || "").split(',').map(email => email.trim());
-
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.CALLBACK_URL || "/auth/google/callback",
-    proxy: true
+    callbackURL: "/auth/google/callback"
   },
   (accessToken, refreshToken, profile, done) => {
-    return done(null, {
-      name: profile.displayName,
-      email: profile.emails[0].value,
-      photo: profile.photos && profile.photos[0] ? profile.photos[0].value : ""
-    });
+    return done(null, profile);
   }
 ));
 
@@ -107,61 +82,49 @@ passport.deserializeUser((obj, done) => done(null, obj));
 /** ----------------------------------------------------------------
  * ミドルウェア
  * ---------------------------------------------------------------- */
-function requireAdmin(req, res, next) {
-  if (req.isAuthenticated() && ADMIN_EMAILS.includes(req.user.email)) return next();
-  return res.status(403).json({ error: '権限がありません' });
-}
+// 管理者チェック
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '').split(',');
+const requireAdmin = (req, res, next) => {
+  if (req.isAuthenticated() && ADMIN_EMAILS.includes(req.user.emails[0].value)) {
+    return next();
+  }
+  res.status(403).json({ error: 'Forbidden' });
+};
 
 /** ----------------------------------------------------------------
- * API ルート定義
+ * 一般 API
  * ---------------------------------------------------------------- */
 
-app.use('/api/', apiBurstLimiter);
-
-// お問い合わせ送信 (MongoDB保存版)
-app.post('/api/contact', contactStrictLimiter, async (req, res) => {
-  if (!req.isAuthenticated()) return res.status(401).json({ error: 'ログインが必要です' });
-  const { message } = req.body;
-  if (!message || message.length > 5000) return res.status(400).json({ error: '内容が不正です' });
-
-  try {
-    const newMessage = new Message({
-      userName: req.user.name,
-      email: req.user.email,
-      content: message
-    });
-    await newMessage.save();
-
-    // Discord Webhook 通知
-    if (process.env.DISCORD_WEBHOOK_URL) {
-      await axios.post(process.env.DISCORD_WEBHOOK_URL, {
-        embeds: [{
-          title: "📩 新しいお問い合わせ (DB保存済)",
-          color: 3447003,
-          thumbnail: { url: req.user.photo },
-          fields: [
-            { name: "📧 Email", value: req.user.email, inline: true },
-            { name: "📝 内容", value: message }
-          ]
-        }]
-      });
-    }
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: 'サーバーエラーが発生しました' });
+// ログイン状態確認
+app.get('/api/user', (req, res) => {
+  if (req.isAuthenticated()) {
+    const isAdmin = ADMIN_EMAILS.includes(req.user.emails[0].value);
+    res.json({ loggedIn: true, user: req.user, isAdmin });
+  } else {
+    res.json({ loggedIn: false });
   }
 });
 
-// ログインユーザー情報
-app.get('/api/user', (req, res) => {
-  res.json(req.isAuthenticated() ? { 
-    isLoggedIn: true, 
-    user: req.user, 
-    isAdmin: ADMIN_EMAILS.includes(req.user.email) 
-  } : { isLoggedIn: false });
+// お問い合わせ送信
+app.post('/api/contact', async (req, res) => {
+  if (!req.isAuthenticated()) return res.status(401).json({ error: 'Login required' });
+  const { content } = req.body;
+  if (!content) return res.status(400).json({ error: 'Content is empty' });
+
+  try {
+    const newMessage = new Message({
+      userName: req.user.displayName,
+      email: req.user.emails[0].value,
+      content: content
+    });
+    await newMessage.save();
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: '保存に失敗しました' });
+  }
 });
 
-// 自分のメッセージ履歴取得 (MongoDBから取得)
+// 自分のメッセージ履歴取得
 app.get('/api/my-messages', async (req, res) => {
   if (!req.isAuthenticated()) return res.json({ messages: [] });
   const messages = await Message.find({ email: req.user.email });
@@ -190,6 +153,20 @@ app.post('/api/admin/reply', requireAdmin, async (req, res) => {
   }
 });
 
+// ★追加箇所: 質問を終了してデータを削除する
+app.delete('/api/admin/messages/:id', requireAdmin, async (req, res) => {
+  try {
+    const deleted = await Message.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ error: 'メッセージが見つかりません' });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Delete Error:', err);
+    res.status(500).json({ error: '削除中にエラーが発生しました' });
+  }
+});
+
 /** ----------------------------------------------------------------
  * 認証ルート
  * ---------------------------------------------------------------- */
@@ -201,5 +178,10 @@ app.get('/logout', (req, res) => {
   req.logout(() => res.redirect('/'));
 });
 
+/** ----------------------------------------------------------------
+ * サーバー起動
+ * ---------------------------------------------------------------- */
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🛡️ Full-Feature Server on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
