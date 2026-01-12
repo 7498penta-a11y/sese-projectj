@@ -41,9 +41,17 @@
     .scroll-mt-24 { scroll-margin-top: 6rem; }
     /* dialogの背景用 */
     dialog::backdrop { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px); }
+
+    /* Toast Animation */
+    .toast-enter { transform: translateX(100%); opacity: 0; }
+    .toast-enter-active { transform: translateX(0); opacity: 1; transition: all 0.3s ease-out; }
+    .toast-exit { transform: translateX(0); opacity: 1; }
+    .toast-exit-active { transform: translateX(100%); opacity: 0; transition: all 0.3s ease-in; }
   </style>
 </head>
 <body class="min-h-screen bg-gray-50 text-gray-800 dark:bg-[#0f172a] dark:text-slate-200">
+
+  <div id="toast-container" class="fixed top-24 right-5 z-[100] flex flex-col gap-2"></div>
 
   <header class="bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-gray-200 dark:border-slate-800">
     <div class="max-w-7xl mx-auto px-4 flex items-center justify-between py-3">
@@ -315,7 +323,7 @@
               </div>
 
               <div class="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-2xl flex items-center gap-4 border border-indigo-100 dark:border-indigo-900/30">
-                <img id="user-photo" src="" class="w-12 h-12 rounded-full border-2 border-white dark:border-slate-700">
+                <img id="user-photo" src="" onerror="handleImgError(this)" class="w-12 h-12 rounded-full border-2 border-white dark:border-slate-700">
                 <span id="user-name" class="font-black text-gray-800 dark:text-slate-200"></span>
               </div>
               <textarea id="contact-message" rows="6" class="w-full p-6 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 font-bold dark:text-slate-200" placeholder="メッセージを入力..."></textarea>
@@ -331,9 +339,23 @@
         <h2 class="text-3xl font-black mb-2 text-red-600 dark:text-red-400 tracking-tighter">管理パネル</h2>
         <p class="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Administrator Dashboard</p>
       </div>
-      <div class="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-red-100 dark:border-red-900/20">
+
+      <div class="flex justify-between items-center px-4 max-w-4xl mx-auto">
+        <span class="text-xs font-bold text-gray-500">お問い合わせ一覧</span>
+        <button onclick="loadAdminMessages(1, true)" class="text-xs text-indigo-500 hover:underline flex items-center gap-1">
+          <span>🔄</span> 更新
+        </button>
+      </div>
+
+      <div class="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-red-100 dark:border-red-900/20 max-w-4xl mx-auto">
         <div id="admin-message-list" class="space-y-4">
           <p class="text-center text-gray-400 py-10 font-bold">読み込み中...</p>
+        </div>
+        
+        <div id="admin-load-more" class="hidden text-center mt-6">
+          <button id="btn-load-more" class="px-6 py-2 bg-gray-100 dark:bg-slate-700 rounded-full text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-200 transition">
+            👇 さらに読み込む
+          </button>
         </div>
       </div>
     </section>
@@ -371,6 +393,36 @@
         return DOMPurify.sanitize(str);
       }
 
+      // --- Toast Notification Helper ---
+      function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const el = document.createElement('div');
+        
+        // デザイン設定
+        const colors = type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white';
+        const icon = type === 'success' ? '✅' : '⚠️';
+        
+        el.className = `${colors} px-6 py-4 rounded-xl shadow-2xl font-bold text-sm flex items-center gap-3 toast-enter toast-enter-active min-w-[250px]`;
+        el.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+        
+        container.appendChild(el);
+        
+        // アニメーション用クラス削除
+        requestAnimationFrame(() => el.classList.remove('toast-enter'));
+
+        // 3秒後に消去
+        setTimeout(() => {
+          el.classList.add('toast-exit-active');
+          el.addEventListener('transitionend', () => el.remove());
+        }, 3000);
+      }
+
+      // --- 画像フォールバック ---
+      window.handleImgError = function(img) {
+        img.src = 'https://ui-avatars.com/api/?name=User&background=random'; 
+        img.onerror = null; 
+      };
+
       // ルーティング
       function router(p) {
         document.querySelectorAll('.page').forEach(el => el.classList.add('hidden'));
@@ -385,7 +437,7 @@
         if(target) target.classList.remove('hidden');
         
         if(p === 'contact') { renderContactArea(); loadMyMessages(); }
-        if(p === 'admin') loadAdminMessages();
+        if(p === 'admin') loadAdminMessages(1, true); // 初回読み込み
 
         window.scrollTo(0, 0);
       }
@@ -442,7 +494,7 @@
           if (data.isLoggedIn) {
             currentUser = data.user;
             const safePhoto = escapeHTML(data.user.photo);
-            ua.innerHTML = `<div class="flex items-center gap-2"><img src="${safePhoto}" class="w-8 h-8 rounded-full border border-gray-200 dark:border-slate-700 shadow-sm"><a href="/logout" class="text-[10px] font-black text-red-500 hover:underline">ログアウト</a></div>`;
+            ua.innerHTML = `<div class="flex items-center gap-2"><img src="${safePhoto}" onerror="handleImgError(this)" class="w-8 h-8 rounded-full border border-gray-200 dark:border-slate-700 shadow-sm"><a href="/logout" class="text-[10px] font-black text-red-500 hover:underline">ログアウト</a></div>`;
             
             if (data.isAdmin) {
               const adminBtn = document.getElementById('nav-admin');
@@ -491,11 +543,11 @@
         const msg = msgInput.value;
         
         const validation = validateMessage(msg);
-        if (!validation.valid) { alert(validation.error); return; }
+        if (!validation.valid) { showToast(validation.error, 'error'); return; }
 
         const now = Date.now();
         if (now - lastSubmitTime < SUBMIT_COOLDOWN) { 
-          alert('送信間隔が短すぎます。'); 
+          showToast('送信間隔が短すぎます。', 'error'); 
           return; 
         }
         lastSubmitTime = now;
@@ -513,14 +565,14 @@
           });
           const result = await res.json();
           if(result.success) { 
-            alert('送信完了しました！'); 
+            showToast('送信完了しました！'); 
             msgInput.value = ''; 
             loadMyMessages();
           } else {
             throw new Error(result.error || '送信失敗');
           }
         } catch (err) { 
-          alert('送信できませんでした（メッセージの送信回数が多すぎます）');
+          showToast('送信できませんでした（上限超過など）', 'error');
         } finally {
           btn.disabled = false;
           btn.innerText = originalText;
@@ -546,50 +598,102 @@
                     <p class="text-sm font-black text-gray-800 dark:text-white">運営の回答: ${escapeHTML(m.reply)}</p>
                   </div>
                 </div>
-              `).reverse().join('');
+              `).join(''); // my-messagesはサーバー側でソート済み
             }
           }
         } catch (e) { console.error(e); }
       }
 
-      async function loadAdminMessages() {
+      // --- Admin Logic with Pagination & Status ---
+      let adminPage = 1;
+      const adminLimit = 10;
+      let adminIsLoading = false;
+
+      async function loadAdminMessages(page = 1, reset = false) {
+        if (adminIsLoading) return;
+        adminIsLoading = true;
+        
         const list = document.getElementById('admin-message-list');
+        const loadMoreBtn = document.getElementById('admin-load-more');
+        
+        if (reset) {
+          list.innerHTML = '<p class="text-center text-gray-400 py-10 font-bold">読み込み中...</p>';
+          adminPage = 1;
+        }
+
         try {
-          const res = await fetch('/api/admin/messages');
-          if (res.status === 403) { list.innerHTML = '<p class="text-red-500 font-bold">権限がありません</p>'; return; }
+          const res = await fetch(`/api/admin/messages?page=${page}&limit=${adminLimit}`);
+          
+          if (res.status === 403) { 
+            list.innerHTML = '<p class="text-red-500 font-bold">権限がありません</p>'; 
+            return; 
+          }
           
           const data = await res.json();
-          if(!data.messages || data.messages.length === 0) {
-            list.innerHTML = '<p class="text-center text-gray-400 py-10 font-bold">メッセージはまだありません。</p>';
+          
+          if (reset) list.innerHTML = ''; 
+
+          if (!data.messages || data.messages.length === 0) {
+            if(reset) list.innerHTML = '<p class="text-center text-gray-400 py-10 font-bold">メッセージはまだありません。</p>';
+            loadMoreBtn.classList.add('hidden');
             return;
           }
           
-          list.innerHTML = data.messages.map(m => {
-            const mId = escapeHTML(m.id || m._id);
+          const html = data.messages.map(m => {
+            const mId = escapeHTML(m._id);
+            // 日付フォーマット
+            const dateStr = m.timestamp ? new Date(m.timestamp).toLocaleString('ja-JP') : '不明';
+            
+            // ステータスバッジ
+            let statusBadge = '';
+            if (m.status === 'completed' || m.reply) {
+              statusBadge = '<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-[10px] font-black mr-2">完了</span>';
+            } else {
+              statusBadge = '<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-[10px] font-black mr-2">未対応</span>';
+            }
+
             return `
-            <div class="p-6 bg-gray-50 dark:bg-slate-900/50 rounded-3xl border border-gray-100 dark:border-slate-700 mb-4">
+            <div class="p-6 bg-gray-50 dark:bg-slate-900/50 rounded-3xl border border-gray-100 dark:border-slate-700 mb-4 fade-in">
               <div class="flex justify-between items-start mb-2">
-                <span class="font-black text-indigo-600 text-xs">${escapeHTML(m.userName)} (${escapeHTML(m.email)})</span>
-                <span class="text-[9px] text-gray-400 font-bold">${escapeHTML(m.timestamp)}</span>
+                <div class="flex items-center flex-wrap">
+                  ${statusBadge}
+                  <span class="font-black text-indigo-600 text-xs">${escapeHTML(m.userName)}</span>
+                </div>
+                <span class="text-[9px] text-gray-400 font-bold whitespace-nowrap ml-2">${dateStr}</span>
               </div>
-              <p class="text-sm font-bold text-gray-700 dark:text-slate-300 mb-4 break-words">${escapeHTML(m.content)}</p>
-              ${m.reply ? `<div class="p-2 bg-green-100 dark:bg-green-900/30 rounded text-xs text-green-700 dark:text-green-300 font-bold mb-4">回答済み: ${escapeHTML(m.reply)}</div>` : ''}
-              <div class="flex gap-2">
-                <button data-msg-id="${mId}" class="reply-btn text-[10px] font-black bg-indigo-600 text-white px-5 py-2 rounded-full hover:bg-indigo-700 transition">回答する</button>
-                <button data-msg-id="${mId}" class="delete-btn text-[10px] font-black bg-red-500 text-white px-5 py-2 rounded-full hover:bg-red-600 transition">削除</button>
+              <p class="text-xs text-gray-400 mb-2">${escapeHTML(m.email)}</p>
+              <p class="text-sm font-bold text-gray-700 dark:text-slate-300 mb-4 break-words p-3 bg-white dark:bg-slate-800 rounded-xl border dark:border-slate-700">${escapeHTML(m.content)}</p>
+              ${m.reply ? `<div class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-900/30 rounded-xl text-xs text-green-800 dark:text-green-300 font-bold mb-4">✅ 回答: ${escapeHTML(m.reply)}</div>` : ''}
+              <div class="flex gap-2 justify-end">
+                ${!m.reply ? `<button onclick="openReplyModal('${mId}')" class="text-[10px] font-black bg-indigo-600 text-white px-4 py-2 rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 dark:shadow-none">回答する</button>` : ''}
+                <button onclick="deleteMessage('${mId}')" class="text-[10px] font-black bg-gray-200 text-gray-500 dark:bg-slate-700 dark:text-slate-400 px-4 py-2 rounded-xl hover:bg-red-100 hover:text-red-500 transition">削除</button>
               </div>
             </div>
-          `;}).reverse().join('');
+          `;}).join('');
 
-          document.querySelectorAll('.reply-btn').forEach(btn => {
-            btn.addEventListener('click', () => openReplyModal(btn.dataset.msgId));
-          });
-          
-          document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', () => deleteMessage(btn.dataset.msgId));
-          });
+          list.insertAdjacentHTML('beforeend', html);
 
-        } catch (e) { list.innerHTML = '読み込み失敗'; }
+          // ページネーション制御
+          if (data.pagination && data.pagination.page < data.pagination.totalPages) {
+            loadMoreBtn.classList.remove('hidden');
+            adminPage = data.pagination.page; 
+          } else {
+            loadMoreBtn.classList.add('hidden');
+          }
+
+        } catch (e) { 
+          showToast('読み込み失敗', 'error'); 
+        } finally {
+          adminIsLoading = false;
+        }
+      }
+
+      // さらに読み込むボタン
+      const btnMore = document.getElementById('btn-load-more');
+      if(btnMore) {
+        btnMore.addEventListener('click', () => {
+          loadAdminMessages(adminPage + 1, false);
+        });
       }
 
       async function deleteMessage(id) {
@@ -598,11 +702,13 @@
           const res = await fetch(`/api/admin/message/${id}`, { method: 'DELETE' });
           const result = await res.json();
           if(result.success) {
-            loadAdminMessages();
+            showToast('メッセージを削除しました');
+            // リセットして再読み込み
+            loadAdminMessages(1, true);
           } else {
-            alert('削除失敗: ' + (result.error || '不明なエラー'));
+            showToast('削除失敗: ' + (result.error || '不明なエラー'), 'error');
           }
-        } catch (e) { alert('通信エラーが発生しました'); }
+        } catch (e) { showToast('通信エラーが発生しました', 'error'); }
       }
 
       // 管理者モーダル
@@ -632,13 +738,19 @@
           });
           const result = await res.json();
           if(result.success) {
+             showToast('回答を送信しました！');
              modal.close();
-             loadAdminMessages(); 
+             loadAdminMessages(1, true); 
           } else {
-            alert('送信失敗: ' + (result.error || '不明なエラー'));
+            showToast('送信失敗: ' + (result.error || '不明なエラー'), 'error');
           }
-        } catch (e) { alert('通信エラー'); }
+        } catch (e) { showToast('通信エラー', 'error'); }
       });
+
+      // グローバル公開 (HTML内onclick用)
+      window.loadAdminMessages = loadAdminMessages;
+      window.openReplyModal = openReplyModal;
+      window.deleteMessage = deleteMessage;
 
     });
   </script>
