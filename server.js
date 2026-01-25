@@ -8,7 +8,8 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const hpp = require('hpp');
-const mongoose = require('mongoose'); // MongoDB接続用に追加
+const mongoose = require('mongoose');
+const sanitizeHtml = require('sanitize-html'); // 【追加】XSS対策用ライブラリ
 
 const app = express();
 
@@ -121,14 +122,23 @@ app.use('/api/', apiBurstLimiter);
 // お問い合わせ送信 (MongoDB保存版)
 app.post('/api/contact', contactStrictLimiter, async (req, res) => {
   if (!req.isAuthenticated()) return res.status(401).json({ error: 'ログインが必要です' });
+  
   const { message } = req.body;
   if (!message || message.length > 5000) return res.status(400).json({ error: '内容が不正です' });
+
+  // 【修正箇所】入力内容をサニタイズ（XSS対策）
+  // 許可するタグを空配列に設定し、HTMLタグをすべてエスケープまたは削除します。
+  const cleanMessage = sanitizeHtml(message, {
+    allowedTags: [],       // HTMLタグを一切許可しない
+    allowedAttributes: {}, // 属性も許可しない
+    disallowedTagsMode: 'escape' // タグを消すのではなく、文字列としてエスケープする（<script> -> &lt;script&gt;）
+  });
 
   try {
     const newMessage = new Message({
       userName: req.user.name,
       email: req.user.email,
-      content: message
+      content: cleanMessage // サニタイズ済みの内容を保存
     });
     await newMessage.save();
 
@@ -141,13 +151,14 @@ app.post('/api/contact', contactStrictLimiter, async (req, res) => {
           thumbnail: { url: req.user.photo },
           fields: [
             { name: "📧 Email", value: req.user.email, inline: true },
-            { name: "📝 内容", value: message }
+            { name: "📝 内容", value: cleanMessage } // 通知もサニタイズ済みを送る
           ]
         }]
       });
     }
     res.json({ success: true });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'サーバーエラーが発生しました' });
   }
 });
@@ -181,8 +192,16 @@ app.get('/api/admin/messages', requireAdmin, async (req, res) => {
 // お問い合わせに回答する
 app.post('/api/admin/reply', requireAdmin, async (req, res) => {
   const { messageId, replyContent } = req.body;
+
+  // 管理者の返信も念のためサニタイズ（管理者が攻撃されるのを防ぐ、または誤入力防止）
+  const cleanReply = sanitizeHtml(replyContent, {
+    allowedTags: [],
+    allowedAttributes: {},
+    disallowedTagsMode: 'escape'
+  });
+
   try {
-    const updated = await Message.findByIdAndUpdate(messageId, { reply: replyContent }, { new: true });
+    const updated = await Message.findByIdAndUpdate(messageId, { reply: cleanReply }, { new: true });
     if (!updated) return res.status(404).json({ error: 'メッセージが見つかりません' });
     res.json({ success: true });
   } catch (err) {
