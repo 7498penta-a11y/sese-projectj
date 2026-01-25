@@ -41,13 +41,18 @@
     .scroll-mt-24 { scroll-margin-top: 6rem; }
     /* dialogの背景用 */
     dialog::backdrop { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px); }
+    
+    /* モバイルメニューのアニメーション */
+    #mobile-menu { transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; }
+    .menu-closed { transform: translateY(-20px); opacity: 0; pointer-events: none; }
+    .menu-open { transform: translateY(0); opacity: 1; pointer-events: auto; }
   </style>
 </head>
 <body class="min-h-screen bg-gray-50 text-gray-800 dark:bg-[#0f172a] dark:text-slate-200">
 
   <header class="bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-gray-200 dark:border-slate-800">
     <div class="max-w-7xl mx-auto px-4 flex items-center justify-between py-3">
-      <div class="flex items-center gap-3 cursor-pointer js-router-link" data-route="home">
+      <div class="flex items-center gap-3 cursor-pointer js-router-link z-50 relative" data-route="home">
         <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-lg">S</div>
         <span class="font-black text-lg tracking-tighter dark:text-white">SESE SERVER</span>
       </div>
@@ -63,36 +68,51 @@
         <button id="nav-admin" data-route="admin" class="nav-btn js-router-link hidden px-4 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-black hover:bg-red-100 dark:hover:bg-red-900/40 transition">⚠️ 管理</button>
       </nav>
 
-      <div id="user-area" class="flex items-center gap-3">
-        <div class="animate-pulse bg-gray-200 dark:bg-slate-700 h-8 w-20 rounded"></div>
+      <div class="flex items-center gap-3 z-50 relative">
+        <div id="user-area" class="flex items-center gap-3">
+          <div class="animate-pulse bg-gray-200 dark:bg-slate-700 h-8 w-20 rounded"></div>
+        </div>
+        <button id="mobile-menu-toggle" class="md:hidden p-2 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        </button>
       </div>
+    </div>
+
+    <div id="mobile-menu" class="fixed inset-0 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center space-y-6 menu-closed md:hidden">
+        <button data-route="home" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">ホーム</button>
+        <button data-route="guidelines" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">規約</button>
+        <button data-route="staff" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">運営</button>
+        <button data-route="serverinfo" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">動向</button>
+        <button data-route="contact" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">連絡</button>
+        <button data-route="privacy" class="mobile-nav-btn text-sm font-bold text-gray-500 dark:text-slate-400">プライバシーポリシー</button>
+        <button id="mobile-nav-admin" data-route="admin" class="mobile-nav-btn hidden text-xl font-black text-red-500 bg-red-50 dark:bg-red-900/20 px-6 py-2 rounded-xl">⚠️ 管理画面</button>
     </div>
   </header>
 
   <main class="max-w-5xl mx-auto px-4 py-8 pb-20">
 
     <section id="page-home" class="page fade-in">
-      <div class="rounded-[2rem] bg-gradient-to-br from-indigo-600 to-violet-800 p-10 md:p-16 text-center shadow-2xl text-white mb-10">
-        <h1 class="text-4xl md:text-5xl font-black mb-6 tracking-tighter">最高品質の交流を。</h1>
-        <p class="text-indigo-100 text-base md:text-lg mb-10 font-medium">オーナー sese_PAP_1122 & MRF_4922 が統括する、<br>規約に守られたクリーンなDiscordサーバーです。</p>
-        <div class="flex flex-wrap gap-4 justify-center">
-          <a href="https://discord.gg/WEWgXFss9p" target="_blank" class="bg-white text-indigo-700 px-8 py-3.5 rounded-2xl font-black text-lg shadow-xl hover:scale-105 transition-all">サーバーへ参加</a>
+      <div class="rounded-[2rem] bg-gradient-to-br from-indigo-600 to-violet-800 p-8 md:p-16 text-center shadow-2xl text-white mb-10">
+        <h1 class="text-3xl md:text-5xl font-black mb-6 tracking-tighter leading-tight">最高品質の交流を。</h1>
+        <p class="text-indigo-100 text-sm md:text-lg mb-10 font-medium leading-relaxed">オーナー sese_PAP_1122 & MRF_4922 が統括する、<br class="hidden md:inline">規約に守られたクリーンなDiscordサーバーです。</p>
+        <div class="flex flex-col md:flex-row gap-4 justify-center">
+          <a href="https://discord.gg/WEWgXFss9p" target="_blank" class="bg-white text-indigo-700 px-8 py-3.5 rounded-2xl font-black text-lg shadow-xl hover:scale-105 transition-all text-center">サーバーへ参加</a>
           <button data-route="guidelines" class="js-router-link bg-indigo-900/40 backdrop-blur-md text-white border border-indigo-400/30 px-8 py-3.5 rounded-2xl font-black text-lg hover:bg-indigo-900/60 transition-all">規約を確認</button>
         </div>
       </div>
 
-      <div class="grid md:grid-cols-3 gap-6 mb-10">
-        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700">
+      <div class="grid gap-6 md:grid-cols-3 mb-10">
+        <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700">
           <div class="text-3xl mb-4">🛡️</div>
           <h3 class="font-black text-xl mb-2 dark:text-white">安全な場所</h3>
           <p class="text-gray-500 dark:text-slate-400 text-sm leading-relaxed">明確なルールと相互監視システムにより、誰もが安心して過ごせます。</p>
         </div>
-        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700">
+        <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700">
           <div class="text-3xl mb-4">⚖️</div>
           <h3 class="font-black text-xl mb-2 dark:text-white">透明な運営</h3>
           <p class="text-gray-500 dark:text-slate-400 text-sm leading-relaxed">オーナーを含む全員が規約に従い、公平な判断が行われる体制を構築しています。</p>
         </div>
-        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700">
+        <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700">
           <div class="text-3xl mb-4">🤝</div>
           <h3 class="font-black text-xl mb-2 dark:text-white">活発な交流</h3>
           <p class="text-gray-500 dark:text-slate-400 text-sm leading-relaxed">100名を超えるメンバーと共に、日々の雑談やイベントを楽しめます。</p>
@@ -112,28 +132,28 @@
 
     <section id="page-guidelines" class="page hidden fade-in">
       <div class="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
-        <div class="bg-slate-900 p-10 text-white">
-          <h2 class="text-3xl font-black mb-6 tracking-tight text-center">ガイドライン</h2>
+        <div class="bg-slate-900 p-8 md:p-10 text-white">
+          <h2 class="text-2xl md:text-3xl font-black mb-6 tracking-tight text-center">ガイドライン</h2>
           <div class="flex flex-wrap justify-center gap-2 text-xs">
-            <a href="#rule-1" class="px-4 py-2 bg-white/10 rounded-full hover:bg-white/20 transition">基本定義</a>
-            <a href="#rule-2" class="px-4 py-2 bg-white/10 rounded-full hover:bg-white/20 transition">禁止行為・罰則</a>
-            <a href="#rule-3" class="px-4 py-2 bg-white/10 rounded-full hover:bg-white/20 transition">相互敬意</a>
-            <a href="#rule-5" class="px-4 py-2 bg-white/10 rounded-full hover:bg-white/20 transition">運営体制</a>
+            <a href="#rule-1" class="px-3 py-2 bg-white/10 rounded-full hover:bg-white/20 transition">基本定義</a>
+            <a href="#rule-2" class="px-3 py-2 bg-white/10 rounded-full hover:bg-white/20 transition">禁止行為・罰則</a>
+            <a href="#rule-3" class="px-3 py-2 bg-white/10 rounded-full hover:bg-white/20 transition">相互敬意</a>
+            <a href="#rule-5" class="px-3 py-2 bg-white/10 rounded-full hover:bg-white/20 transition">運営体制</a>
           </div>
         </div>
 
-        <div class="p-8 md:p-14 space-y-16">
+        <div class="p-6 md:p-14 space-y-16">
           <div id="rule-1" class="scroll-mt-24">
-            <h3 class="text-xl font-black text-indigo-600 dark:text-indigo-400 mb-6 border-l-4 border-indigo-600 dark:border-indigo-400 pl-4 uppercase tracking-tighter">第1章：定義</h3>
+            <h3 class="text-lg md:text-xl font-black text-indigo-600 dark:text-indigo-400 mb-6 border-l-4 border-indigo-600 dark:border-indigo-400 pl-4 uppercase tracking-tighter">第1章：定義</h3>
             <p class="bg-gray-50 dark:bg-slate-900/50 p-6 rounded-2xl text-sm leading-loose font-bold dark:text-slate-300">
               第一条：本規約は、sese_PAP_1122のDiscordサーバー（以降「この鯖」）での規則を指します。
             </p>
           </div>
 
           <div id="rule-2" class="scroll-mt-24">
-            <h3 class="text-xl font-black text-red-600 dark:text-red-400 mb-6 border-l-4 border-red-600 dark:border-red-400 pl-4 uppercase tracking-tighter">第2章：禁止行為と罰則</h3>
+            <h3 class="text-lg md:text-xl font-black text-red-600 dark:text-red-400 mb-6 border-l-4 border-red-600 dark:border-red-400 pl-4 uppercase tracking-tighter">第2章：禁止行為と罰則</h3>
             <div class="space-y-6">
-              <div class="p-8 bg-gray-50 dark:bg-slate-900/50 rounded-2xl text-sm leading-loose">
+              <div class="p-6 md:p-8 bg-gray-50 dark:bg-slate-900/50 rounded-2xl text-sm leading-loose">
                 <p class="font-black mb-4 text-gray-800 dark:text-slate-200 text-base underline decoration-red-500/30">第二条：禁止行為の定義</p>
                 <ul class="grid md:grid-cols-2 gap-3 list-disc list-inside font-bold text-gray-600 dark:text-slate-400">
                   <li>多重アカウントによる人数膨張</li>
@@ -144,7 +164,7 @@
                   <li>その他、Discord利用規約違反</li>
                 </ul>
               </div>
-              <div class="grid md:grid-cols-3 gap-4 text-center">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                 <div class="p-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded-2xl">
                   <span class="block font-black text-amber-800 dark:text-amber-400 mb-1">タイムアウト</span>
                   <span class="text-[10px] text-amber-600 dark:text-amber-500 font-bold">暴言・軽度の違反</span>
@@ -162,9 +182,9 @@
           </div>
 
           <div id="rule-5" class="scroll-mt-24 pb-10">
-            <h3 class="text-xl font-black text-indigo-600 dark:text-indigo-400 mb-6 border-l-4 border-indigo-600 dark:border-indigo-400 pl-4 uppercase tracking-tighter">第5章：権限と監視</h3>
-            <div class="bg-slate-900 dark:bg-slate-950 text-white p-8 rounded-3xl shadow-xl space-y-4 border border-white/5">
-              <p class="font-black text-indigo-400 text-lg">独裁的運営を防止する相互監視（第十三〜十六条）</p>
+            <h3 class="text-lg md:text-xl font-black text-indigo-600 dark:text-indigo-400 mb-6 border-l-4 border-indigo-600 dark:border-indigo-400 pl-4 uppercase tracking-tighter">第5章：権限と監視</h3>
+            <div class="bg-slate-900 dark:bg-slate-950 text-white p-6 md:p-8 rounded-3xl shadow-xl space-y-4 border border-white/5">
+              <p class="font-black text-indigo-400 text-base md:text-lg">独裁的運営を防止する相互監視（第十三〜十六条）</p>
               <div class="grid md:grid-cols-2 gap-6 text-sm leading-relaxed opacity-90">
                 <p class="p-4 bg-white/5 rounded-xl border border-white/10">アドミンの過半数が賛成する場合、オーナーを解任することができます。</p>
                 <p class="p-4 bg-white/5 rounded-xl border border-white/10">常連の全員が賛成する場合、アドミンを解任することができます。</p>
@@ -182,15 +202,15 @@
       </div>
 
       <div class="grid md:grid-cols-2 gap-8">
-        <div class="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-slate-700">
+        <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-slate-700">
           <h3 class="font-black text-indigo-600 dark:text-indigo-400 mb-6 flex items-center gap-2">👑 オーナー</h3>
           <div class="space-y-3 font-black">
-            <div class="p-5 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-100 rounded-2xl flex justify-between items-center"><span>sese_PAP_1122</span> <span class="text-[9px] bg-indigo-600 text-white px-2 py-1 rounded">OWNER</span></div>
-            <div class="p-5 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-100 rounded-2xl flex justify-between items-center"><span>MRF_4922</span> <span class="text-[9px] bg-indigo-600 text-white px-2 py-1 rounded">OWNER</span></div>
+            <div class="p-5 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-100 rounded-2xl flex flex-wrap justify-between items-center gap-2"><span>sese_PAP_1122</span> <span class="text-[9px] bg-indigo-600 text-white px-2 py-1 rounded">OWNER</span></div>
+            <div class="p-5 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-100 rounded-2xl flex flex-wrap justify-between items-center gap-2"><span>MRF_4922</span> <span class="text-[9px] bg-indigo-600 text-white px-2 py-1 rounded">OWNER</span></div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-slate-700">
+        <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-slate-700">
           <h3 class="font-black text-gray-800 dark:text-slate-200 mb-6 flex items-center gap-2">🛡️ アドミン</h3>
           <div class="space-y-2 font-bold text-sm text-gray-600 dark:text-slate-400">
             <div class="p-4 bg-gray-50 dark:bg-slate-900/50 rounded-xl flex justify-between items-center"><span>7498</span> <span class="text-[9px] bg-gray-900 dark:bg-slate-700 text-white px-2 py-1 rounded">ADMIN</span></div>
@@ -200,9 +220,9 @@
         </div>
       </div>
 
-      <div class="max-w-3xl mx-auto bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-slate-700">
+      <div class="max-w-3xl mx-auto bg-white dark:bg-slate-800 p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-slate-700">
         <h3 class="font-black text-purple-600 dark:text-purple-400 mb-8 text-center flex items-center justify-center gap-2">⚖️ モデレーター</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 font-black text-center text-sm dark:text-slate-300">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 font-black text-center text-sm dark:text-slate-300">
           <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl">やも</div>
           <div class="p-4 bg-gray-50 dark:bg-slate-900/50 rounded-xl">kuroneko22_sabu</div>
           <div class="p-4 bg-gray-50 dark:bg-slate-900/50 rounded-xl">yshi</div>
@@ -234,24 +254,24 @@
             </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-slate-700">
+        <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-slate-700 overflow-x-auto">
             <h3 class="font-black mb-6 text-gray-400 dark:text-slate-500 uppercase text-xs tracking-widest">Basic Statistics</h3>
-            <table class="w-full text-left border-collapse text-sm">
+            <table class="w-full text-left border-collapse text-sm min-w-[300px]">
                 <tr class="border-b border-gray-50 dark:border-slate-700">
-                    <th class="py-4 px-2 text-gray-400 dark:text-slate-500 font-bold uppercase text-[10px]">所有者</th>
+                    <th class="py-4 px-2 text-gray-400 dark:text-slate-500 font-bold uppercase text-[10px] whitespace-nowrap">所有者</th>
                     <td class="py-4 px-2 font-black text-gray-800 dark:text-slate-200 underline decoration-indigo-200 dark:decoration-indigo-900/50 decoration-4">sese_PAP_1122 & MRF_4922</td>
                 </tr>
                 <tr class="border-b border-gray-50 dark:border-slate-700">
-                    <th class="py-4 px-2 text-gray-400 dark:text-slate-500 font-bold uppercase text-[10px]">作成日</th>
+                    <th class="py-4 px-2 text-gray-400 dark:text-slate-500 font-bold uppercase text-[10px] whitespace-nowrap">作成日</th>
                     <td class="py-4 px-2 font-bold text-gray-600 dark:text-slate-400">2024/08/15</td>
                 </tr>
                 <tr class="border-b border-gray-50 dark:border-slate-700">
-                    <th class="py-4 px-2 text-gray-400 dark:text-slate-500 font-bold uppercase text-[10px]">総メンバー数</th>
+                    <th class="py-4 px-2 text-gray-400 dark:text-slate-500 font-bold uppercase text-[10px] whitespace-nowrap">総メンバー数</th>
                     <td class="py-4 px-2 font-black text-gray-800 dark:text-slate-200 text-lg">113名</td>
                 </tr>
                 <tr>
-                    <th class="py-4 px-2 text-gray-400 dark:text-slate-500 font-bold uppercase text-[10px]">サーバーID</th>
-                    <td class="py-4 px-2 font-mono text-xs text-gray-500 dark:text-slate-500 tracking-tighter">1405840878290993196</td>
+                    <th class="py-4 px-2 text-gray-400 dark:text-slate-500 font-bold uppercase text-[10px] whitespace-nowrap">サーバーID</th>
+                    <td class="py-4 px-2 font-mono text-xs text-gray-500 dark:text-slate-500 tracking-tighter break-all">1405840878290993196</td>
                 </tr>
             </table>
         </div>
@@ -259,7 +279,7 @@
 
     <section id="page-privacy" class="page hidden fade-in max-w-2xl mx-auto">
         <h2 class="text-3xl font-black mb-8 text-center dark:text-white">プライバシーポリシー</h2>
-        <div class="bg-white dark:bg-slate-800 p-10 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-slate-700 space-y-8">
+        <div class="bg-white dark:bg-slate-800 p-6 md:p-10 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-slate-700 space-y-8">
             <div>
                 <h3 class="font-black text-indigo-600 dark:text-indigo-400 mb-2 border-l-4 border-indigo-500 pl-3">1. 収集する情報</h3>
                 <p class="text-sm font-bold text-gray-600 dark:text-slate-400 leading-relaxed">
@@ -300,7 +320,7 @@
           <div id="my-replies-list" class="space-y-4"></div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 p-10 rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-slate-700 text-center">
+        <div class="bg-white dark:bg-slate-800 p-6 md:p-10 rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-slate-700 text-center">
           <div id="contact-loading" class="py-10">
             <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mx-auto"></div>
           </div>
@@ -331,14 +351,14 @@
         <h2 class="text-3xl font-black mb-2 text-red-600 dark:text-red-400 tracking-tighter">管理パネル</h2>
         <p class="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Administrator Dashboard</p>
       </div>
-      <div class="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-red-100 dark:border-red-900/20">
+      <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-red-100 dark:border-red-900/20">
         <div id="admin-message-list" class="space-y-4">
           <p class="text-center text-gray-400 py-10 font-bold">読み込み中...</p>
         </div>
       </div>
     </section>
 
-    <dialog id="admin-reply-modal" class="bg-transparent p-0 w-full max-w-lg">
+    <dialog id="admin-reply-modal" class="bg-transparent p-0 w-[90%] max-w-lg">
       <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700">
         <h3 class="font-black text-lg mb-4 dark:text-white">回答を作成</h3>
         <textarea id="reply-textarea" class="w-full p-4 bg-gray-50 dark:bg-slate-900 border dark:border-slate-700 dark:text-white rounded-xl mb-4 focus:ring-2 focus:ring-indigo-500 outline-none" rows="4"></textarea>
@@ -371,16 +391,63 @@
         return DOMPurify.sanitize(str);
       }
 
+      // -------------------------------------------------------------------------
+      // モバイルメニュー制御
+      // -------------------------------------------------------------------------
+      const mobileMenuBtn = document.getElementById('mobile-menu-toggle');
+      const mobileMenu = document.getElementById('mobile-menu');
+      
+      function toggleMobileMenu() {
+          const isClosed = mobileMenu.classList.contains('menu-closed');
+          if (isClosed) {
+              mobileMenu.classList.remove('menu-closed');
+              mobileMenu.classList.add('menu-open');
+              mobileMenu.classList.remove('hidden'); // Tailwindのhiddenを外す
+          } else {
+              mobileMenu.classList.add('menu-closed');
+              mobileMenu.classList.remove('menu-open');
+              setTimeout(() => {
+                if(mobileMenu.classList.contains('menu-closed')) {
+                    mobileMenu.classList.add('hidden');
+                }
+              }, 300); // アニメーション時間待機
+          }
+      }
+
+      if(mobileMenuBtn) {
+          mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+      }
+
+      // ルーティング時にモバイルメニューを閉じる処理を追加
+      function closeMobileMenu() {
+          if (!mobileMenu.classList.contains('menu-closed')) {
+              toggleMobileMenu();
+          }
+      }
+
+      // -------------------------------------------------------------------------
       // ルーティング
+      // -------------------------------------------------------------------------
       function router(p) {
         document.querySelectorAll('.page').forEach(el => el.classList.add('hidden'));
-        document.querySelectorAll('.nav-btn').forEach(btn => {
+        
+        // PC & Mobileの両方のボタンの状態更新
+        document.querySelectorAll('.nav-btn, .mobile-nav-btn').forEach(btn => {
           const isActive = btn.dataset.route === p;
-          btn.classList.toggle('bg-indigo-50', isActive);
-          btn.classList.toggle('dark:bg-indigo-900/30', isActive);
-          btn.classList.toggle('text-indigo-600', isActive);
-          btn.classList.toggle('dark:text-indigo-400', isActive);
+          // PC用スタイル
+          if (btn.classList.contains('nav-btn')) {
+              btn.classList.toggle('bg-indigo-50', isActive);
+              btn.classList.toggle('dark:bg-indigo-900/30', isActive);
+              btn.classList.toggle('text-indigo-600', isActive);
+              btn.classList.toggle('dark:text-indigo-400', isActive);
+          }
+          // モバイル用スタイル
+          if (btn.classList.contains('mobile-nav-btn')) {
+              btn.classList.toggle('text-indigo-600', isActive);
+              btn.classList.toggle('dark:text-indigo-400', isActive);
+          }
         });
+
         const target = document.getElementById(`page-${p}`);
         if(target) target.classList.remove('hidden');
         
@@ -388,11 +455,14 @@
         if(p === 'admin') loadAdminMessages();
 
         window.scrollTo(0, 0);
+        closeMobileMenu(); // ページ遷移したらメニューを閉じる
       }
 
       // イベントリスナー登録 (イベント委譲)
+      // モバイルナビボタンのクリックもここで拾います
       document.body.addEventListener('click', (e) => {
-        const link = e.target.closest('.js-router-link');
+        // 通常のnav-btn, mobile-nav-btn, ロゴなどのjs-router-linkを対象
+        const link = e.target.closest('.js-router-link') || e.target.closest('.mobile-nav-btn');
         if (link) {
           e.preventDefault();
           const route = link.dataset.route;
@@ -410,7 +480,6 @@
       setInterval(updateDiscordStatus, 30000);
       
       const allowedRoutes = ['home', 'guidelines', 'staff', 'serverinfo', 'contact', 'privacy', 'admin'];
-      // ハッシュまたはデフォルト
       const currentHash = window.location.hash.replace('#', '');
       const initialRoute = allowedRoutes.includes(currentHash) ? currentHash : 'home';
       router(initialRoute);
@@ -447,6 +516,9 @@
             if (data.isAdmin) {
               const adminBtn = document.getElementById('nav-admin');
               if(adminBtn) adminBtn.classList.remove('hidden');
+              // モバイルメニューの管理ボタンも表示
+              const mobileAdmin = document.getElementById('mobile-nav-admin');
+              if(mobileAdmin) mobileAdmin.classList.remove('hidden');
             }
           } else {
             ua.innerHTML = `<a href="/auth/google" class="text-xs font-black text-indigo-600 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-lg">ログイン</a>`;
@@ -568,11 +640,11 @@
             const mId = escapeHTML(m.id || m._id);
             return `
             <div class="p-6 bg-gray-50 dark:bg-slate-900/50 rounded-3xl border border-gray-100 dark:border-slate-700 mb-4">
-              <div class="flex justify-between items-start mb-2">
-                <span class="font-black text-indigo-600 text-xs">${escapeHTML(m.userName)} (${escapeHTML(m.email)})</span>
-                <span class="text-[9px] text-gray-400 font-bold">${escapeHTML(m.timestamp)}</span>
+              <div class="flex flex-col md:flex-row justify-between items-start mb-2 gap-1">
+                <span class="font-black text-indigo-600 text-xs break-all">${escapeHTML(m.userName)} (${escapeHTML(m.email)})</span>
+                <span class="text-[9px] text-gray-400 font-bold whitespace-nowrap">${escapeHTML(m.timestamp)}</span>
               </div>
-              <p class="text-sm font-bold text-gray-700 dark:text-slate-300 mb-4 break-words">${escapeHTML(m.content)}</p>
+              <p class="text-sm font-bold text-gray-700 dark:text-slate-300 mb-4 break-words whitespace-pre-wrap">${escapeHTML(m.content)}</p>
               ${m.reply ? `<div class="p-2 bg-green-100 dark:bg-green-900/30 rounded text-xs text-green-700 dark:text-green-300 font-bold mb-4">回答済み: ${escapeHTML(m.reply)}</div>` : ''}
               <div class="flex gap-2">
                 <button data-msg-id="${mId}" class="reply-btn text-[10px] font-black bg-indigo-600 text-white px-5 py-2 rounded-full hover:bg-indigo-700 transition">回答する</button>
