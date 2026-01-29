@@ -39,20 +39,19 @@
     .fade-in { animation: fadeIn 0.3s ease-in-out forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     .scroll-mt-24 { scroll-margin-top: 6rem; }
-    /* dialogの背景用 */
     dialog::backdrop { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px); }
     
-    /* モバイルメニューのアニメーション */
-    #mobile-menu { transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; }
-    .menu-closed { transform: translateY(-20px); opacity: 0; pointer-events: none; }
-    .menu-open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    /* モバイルメニューのアニメーション調整 */
+    #mobile-menu { transition: opacity 0.2s ease-in-out, visibility 0.2s; }
+    .menu-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .menu-visible { opacity: 1; visibility: visible; pointer-events: auto; }
   </style>
 </head>
 <body class="min-h-screen bg-gray-50 text-gray-800 dark:bg-[#0f172a] dark:text-slate-200">
 
-  <header class="bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-gray-200 dark:border-slate-800">
+  <header class="bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-200 dark:border-slate-800">
     <div class="max-w-7xl mx-auto px-4 flex items-center justify-between py-3">
-      <div class="flex items-center gap-3 cursor-pointer js-router-link z-50 relative" data-route="home">
+      <div class="flex items-center gap-3 cursor-pointer js-router-link" data-route="home">
         <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-lg">S</div>
         <span class="font-black text-lg tracking-tighter dark:text-white">SESE SERVER</span>
       </div>
@@ -61,7 +60,7 @@
         <button data-route="home" class="nav-btn js-router-link px-4 py-2 rounded-lg transition hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400">ホーム</button>
         <button data-route="guidelines" class="nav-btn js-router-link px-4 py-2 rounded-lg transition hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400">規約</button>
         
-        <a href="/rule.html" class="nav-btn px-4 py-2 rounded-lg transition hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400">sese鯖ルール</a>
+        <a href="public/rule.html" class="nav-btn px-4 py-2 rounded-lg transition hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400">sese鯖ルール</a>
 
         <button data-route="staff" class="nav-btn js-router-link px-4 py-2 rounded-lg transition hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400">運営</button>
         <button data-route="serverinfo" class="nav-btn js-router-link px-4 py-2 rounded-lg transition hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400">動向</button>
@@ -71,29 +70,33 @@
         <button id="nav-admin" data-route="admin" class="nav-btn js-router-link hidden px-4 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-black hover:bg-red-100 dark:hover:bg-red-900/40 transition">⚠️ 管理</button>
       </nav>
 
-      <div class="flex items-center gap-3 z-50 relative">
+      <div class="flex items-center gap-3">
         <div id="user-area" class="flex items-center gap-3">
           <div class="animate-pulse bg-gray-200 dark:bg-slate-700 h-8 w-20 rounded"></div>
         </div>
-        <button id="mobile-menu-toggle" class="md:hidden p-2 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800">
+        <button id="mobile-menu-open" class="md:hidden p-2 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
         </button>
       </div>
     </div>
-
-    <div id="mobile-menu" class="fixed inset-0 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-xl z-40 flex flex-col items-center justify-start pt-32 space-y-8 menu-closed md:hidden overflow-y-auto">
-        <button data-route="home" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">ホーム</button>
-        <button data-route="guidelines" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">規約</button>
-        
-        <a href="/rule.html" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">sese鯖ルール</a>
-
-        <button data-route="staff" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">運営</button>
-        <button data-route="serverinfo" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">動向</button>
-        <button data-route="contact" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">連絡</button>
-        <button data-route="privacy" class="mobile-nav-btn text-sm font-bold text-gray-500 dark:text-slate-400">プライバシーポリシー</button>
-        <button id="mobile-nav-admin" data-route="admin" class="mobile-nav-btn hidden text-xl font-black text-red-500 bg-red-50 dark:bg-red-900/20 px-6 py-2 rounded-xl">⚠️ 管理画面</button>
-    </div>
   </header>
+
+  <div id="mobile-menu" class="fixed inset-0 bg-white dark:bg-[#0f172a] z-[100] flex flex-col items-center justify-center space-y-8 menu-hidden md:hidden">
+      <button id="mobile-menu-close" class="absolute top-6 right-6 p-2 text-gray-500 hover:text-gray-800 dark:text-slate-400 dark:hover:text-white">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <button data-route="home" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">ホーム</button>
+      <button data-route="guidelines" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">規約</button>
+      
+      <a href="public/rule.html" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">sese鯖ルール</a>
+
+      <button data-route="staff" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">運営</button>
+      <button data-route="serverinfo" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">動向</button>
+      <button data-route="contact" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">連絡</button>
+      <button data-route="privacy" class="mobile-nav-btn text-sm font-bold text-gray-500 dark:text-slate-400">プライバシーポリシー</button>
+      <button id="mobile-nav-admin" data-route="admin" class="mobile-nav-btn hidden text-xl font-black text-red-500 bg-red-50 dark:bg-red-900/20 px-6 py-2 rounded-xl">⚠️ 管理画面</button>
+  </div>
 
   <main class="max-w-5xl mx-auto px-4 py-8 pb-20">
 
@@ -398,38 +401,24 @@
       }
 
       // -------------------------------------------------------------------------
-      // モバイルメニュー制御
+      // モバイルメニュー制御 (修正版)
       // -------------------------------------------------------------------------
-      const mobileMenuBtn = document.getElementById('mobile-menu-toggle');
+      const mobileMenuOpenBtn = document.getElementById('mobile-menu-open');
+      const mobileMenuCloseBtn = document.getElementById('mobile-menu-close');
       const mobileMenu = document.getElementById('mobile-menu');
       
-      function toggleMobileMenu() {
-          const isClosed = mobileMenu.classList.contains('menu-closed');
-          if (isClosed) {
-              mobileMenu.classList.remove('menu-closed');
-              mobileMenu.classList.add('menu-open');
-              mobileMenu.classList.remove('hidden'); // Tailwindのhiddenを外す
-          } else {
-              mobileMenu.classList.add('menu-closed');
-              mobileMenu.classList.remove('menu-open');
-              setTimeout(() => {
-                if(mobileMenu.classList.contains('menu-closed')) {
-                    mobileMenu.classList.add('hidden');
-                }
-              }, 300); // アニメーション時間待機
-          }
+      function openMobileMenu() {
+        mobileMenu.classList.remove('menu-hidden');
+        mobileMenu.classList.add('menu-visible');
       }
 
-      if(mobileMenuBtn) {
-          mobileMenuBtn.addEventListener('click', toggleMobileMenu);
-      }
-
-      // ルーティング時にモバイルメニューを閉じる処理を追加
       function closeMobileMenu() {
-          if (!mobileMenu.classList.contains('menu-closed')) {
-              toggleMobileMenu();
-          }
+        mobileMenu.classList.remove('menu-visible');
+        mobileMenu.classList.add('menu-hidden');
       }
+
+      if(mobileMenuOpenBtn) mobileMenuOpenBtn.addEventListener('click', openMobileMenu);
+      if(mobileMenuCloseBtn) mobileMenuCloseBtn.addEventListener('click', closeMobileMenu);
 
       // -------------------------------------------------------------------------
       // ルーティング
@@ -440,14 +429,12 @@
         // PC & Mobileの両方のボタンの状態更新
         document.querySelectorAll('.nav-btn, .mobile-nav-btn').forEach(btn => {
           const isActive = btn.dataset.route === p;
-          // PC用スタイル
           if (btn.classList.contains('nav-btn')) {
               btn.classList.toggle('bg-indigo-50', isActive);
               btn.classList.toggle('dark:bg-indigo-900/30', isActive);
               btn.classList.toggle('text-indigo-600', isActive);
               btn.classList.toggle('dark:text-indigo-400', isActive);
           }
-          // モバイル用スタイル
           if (btn.classList.contains('mobile-nav-btn')) {
               btn.classList.toggle('text-indigo-600', isActive);
               btn.classList.toggle('dark:text-indigo-400', isActive);
@@ -461,15 +448,14 @@
         if(p === 'admin') loadAdminMessages();
 
         window.scrollTo(0, 0);
-        closeMobileMenu(); // ページ遷移したらメニューを閉じる
+        closeMobileMenu(); // 遷移後に閉じる
       }
 
       // イベントリスナー登録 (イベント委譲)
-      // 修正: data-route属性がない場合はリンク遷移を許可するように変更
       document.body.addEventListener('click', (e) => {
-        // 通常のnav-btn, mobile-nav-btn, ロゴなどのjs-router-linkを対象
         const link = e.target.closest('.js-router-link') || e.target.closest('.mobile-nav-btn');
-        if (link && link.dataset.route) { // data-routeがある場合のみSPA動作
+        // data-route がある場合のみSPAとして動作し、通常のhrefリンクは阻害しない
+        if (link && link.dataset.route) { 
           e.preventDefault();
           const route = link.dataset.route;
           router(route);
@@ -491,7 +477,7 @@
       router(initialRoute);
 
       // -------------------------------------------------------------------------
-      // 機能関数群
+      // 機能関数群 (変更なし)
       // -------------------------------------------------------------------------
 
       async function updateDiscordStatus() {
