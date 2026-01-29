@@ -60,6 +60,9 @@
       <nav class="hidden md:flex items-center gap-1 font-bold text-sm text-gray-600 dark:text-slate-400">
         <button data-route="home" class="nav-btn js-router-link px-4 py-2 rounded-lg transition hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400">ホーム</button>
         <button data-route="guidelines" class="nav-btn js-router-link px-4 py-2 rounded-lg transition hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400">規約</button>
+        
+        <a href="/rule.html" class="nav-btn px-4 py-2 rounded-lg transition hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400">sese鯖ルール</a>
+
         <button data-route="staff" class="nav-btn js-router-link px-4 py-2 rounded-lg transition hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400">運営</button>
         <button data-route="serverinfo" class="nav-btn js-router-link px-4 py-2 rounded-lg transition hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400">動向</button>
         <button data-route="contact" class="nav-btn js-router-link px-4 py-2 rounded-lg transition hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400">連絡</button>
@@ -78,9 +81,12 @@
       </div>
     </div>
 
-    <div id="mobile-menu" class="fixed inset-0 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center space-y-6 menu-closed md:hidden">
+    <div id="mobile-menu" class="fixed inset-0 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-xl z-40 flex flex-col items-center justify-start pt-32 space-y-8 menu-closed md:hidden overflow-y-auto">
         <button data-route="home" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">ホーム</button>
         <button data-route="guidelines" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">規約</button>
+        
+        <a href="/rule.html" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">sese鯖ルール</a>
+
         <button data-route="staff" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">運営</button>
         <button data-route="serverinfo" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">動向</button>
         <button data-route="contact" class="mobile-nav-btn text-2xl font-black text-gray-800 dark:text-white hover:text-indigo-500">連絡</button>
@@ -459,14 +465,14 @@
       }
 
       // イベントリスナー登録 (イベント委譲)
-      // モバイルナビボタンのクリックもここで拾います
+      // 修正: data-route属性がない場合はリンク遷移を許可するように変更
       document.body.addEventListener('click', (e) => {
         // 通常のnav-btn, mobile-nav-btn, ロゴなどのjs-router-linkを対象
         const link = e.target.closest('.js-router-link') || e.target.closest('.mobile-nav-btn');
-        if (link) {
+        if (link && link.dataset.route) { // data-routeがある場合のみSPA動作
           e.preventDefault();
           const route = link.dataset.route;
-          if (route) router(route);
+          router(route);
         }
       });
 
