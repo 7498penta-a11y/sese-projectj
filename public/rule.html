@@ -1,1 +1,631 @@
+<!DOCTYPE html>
 
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sese鯖 利用規約</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+```
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: #333;
+        line-height: 1.8;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    header {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 15px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        position: relative;
+    }
+
+    h1 {
+        color: #667eea;
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+    }
+
+    .update-date {
+        color: #666;
+        font-size: 0.9em;
+        margin-bottom: 20px;
+    }
+
+    .intro {
+        background: #f8f9ff;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+        margin-top: 20px;
+    }
+
+    .content {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 15px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .section {
+        margin-bottom: 40px;
+    }
+
+    h2 {
+        color: #667eea;
+        font-size: 1.8em;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 3px solid #667eea;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+    }
+
+    h3 {
+        color: #764ba2;
+        font-size: 1.3em;
+        margin: 25px 0 15px;
+        padding-left: 15px;
+        border-left: 4px solid #764ba2;
+    }
+
+    ul, ol {
+        margin-left: 25px;
+        margin-bottom: 15px;
+    }
+
+    li {
+        margin-bottom: 10px;
+    }
+
+    .warning {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 5px;
+    }
+
+    .danger {
+        background: #f8d7da;
+        border-left: 4px solid #dc3545;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 5px;
+    }
+
+    .info {
+        background: #d1ecf1;
+        border-left: 4px solid #17a2b8;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 5px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    th {
+        background: #667eea;
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    td {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    tr:nth-child(even) {
+        background: #f8f9fa;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: 600;
+        margin-right: 8px;
+    }
+
+    .badge-warning { background: #ffc107; color: #000; }
+    .badge-danger { background: #dc3545; color: #fff; }
+    .badge-info { background: #17a2b8; color: #fff; }
+    .badge-dark { background: #343a40; color: #fff; }
+
+    footer {
+        text-align: center;
+        color: white;
+        padding: 30px;
+        margin-top: 30px;
+    }
+
+    footer a {
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s;
+        opacity: 0.8;
+        padding: 8px 0;
+        display: inline-block;
+    }
+
+    .toc {
+        background: #f8f9ff;
+        padding: 25px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+    }
+
+    .toc h3 {
+        color: #667eea;
+        border: none;
+        padding: 0;
+        margin-bottom: 15px;
+    }
+
+    .toc ul {
+        list-style: none;
+        margin-left: 0;
+    }
+
+    .toc li {
+        margin-bottom: 8px;
+    }
+
+    .toc a {
+        color: #667eea;
+        text-decoration: none;
+        transition: all 0.3s;
+        word-break: break-word;
+        padding: 5px 0;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .toc a:hover {
+            color: #764ba2;
+            transform: translateX(10px);
+        }
+
+        footer a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 10px;
+        }
+
+        header {
+            padding: 60px 20px 30px;
+            border-radius: 10px;
+        }
+
+        header > div:first-child {
+            position: static !important;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        header > div:first-child a {
+            justify-content: center;
+        }
+
+        .content {
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.1em;
+            margin: 20px 0 12px;
+            padding-left: 10px;
+        }
+
+        .intro {
+            padding: 15px;
+            font-size: 0.9em;
+        }
+
+        .toc {
+            padding: 20px;
+        }
+
+        .toc ul {
+            font-size: 0.9em;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        table {
+            font-size: 0.85em;
+        }
+
+        th, td {
+            padding: 10px 8px;
+        }
+
+        .badge {
+            font-size: 0.75em;
+            padding: 4px 10px;
+        }
+
+        .warning, .danger, .info {
+            padding: 12px;
+            font-size: 0.9em;
+        }
+
+        ul, ol {
+            margin-left: 20px;
+            font-size: 0.95em;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        footer {
+            padding: 20px 15px;
+            font-size: 0.85em;
+        }
+
+        footer > div:first-child {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        footer > div:first-child a {
+            display: block;
+        }
+
+        footer > div:first-child span {
+            display: none;
+        }
+    }
+
+    @media (max-width: 480px) {
+        h1 {
+            font-size: 1.5em;
+        }
+
+        h2 {
+            font-size: 1.2em;
+        }
+
+        h3 {
+            font-size: 1em;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        table {
+            font-size: 0.75em;
+        }
+
+        th, td {
+            padding: 8px 5px;
+        }
+
+        .update-date {
+            font-size: 0.8em;
+        }
+    }
+</style>
+```
+
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div style="position: absolute; left: 40px; top: 40px;">
+                <a href="https://sesesaba.net" style="display: inline-flex; align-items: center; gap: 8px; color: #667eea; text-decoration: none; font-weight: 700; font-size: 0.9em; transition: all 0.3s;">
+                    <span style="font-size: 1.2em;">←</span> ホームに戻る
+                </a>
+            </div>
+            <h1>🎮 sese鯖 利用規約</h1>
+            <p class="update-date">最終更新日:2026年1月28日</p>
+            <div class="intro">
+                <p>この利用規約(以下「本規約」)は、sese鯖(以下「本サーバー」)における全てのメンバーが<strong>安全かつ快適に交流できる環境</strong>を維持するために制定されます。本サーバーに参加することで、あなたは本規約に同意したものとみなされます。</p>
+            </div>
+        </header>
+
+```
+    <div class="content">
+        <div class="toc">
+            <h3>📋 目次</h3>
+            <ul>
+                <li><a href="#article1">第1条 規約の適用</a></li>
+                <li><a href="#article2">第2条 禁止行為</a></li>
+                <li><a href="#article3">第3条 違反行為への対応</a></li>
+                <li><a href="#article4">第4条 違反の報告</a></li>
+                <li><a href="#article5">第5条 異議申し立て</a></li>
+                <li><a href="#article6">第6条 運営体制と役割</a></li>
+                <li><a href="#article7">第7条 免責事項</a></li>
+                <li><a href="#article8">第8条 プライバシーとデータの取り扱い</a></li>
+                <li><a href="#article9">第9条 無法地帯チャンネルの特例</a></li>
+                <li><a href="#article10">第10条 規約の改定</a></li>
+                <li><a href="#article11">第11条 準拠法と管轄</a></li>
+            </ul>
+        </div>
+
+        <div class="section" id="article1">
+            <h2>第1条（規約の適用）</h2>
+            <ol>
+                <li>本規約は、本サーバーを利用する全てのメンバー（以下「利用者」）に適用されます。</li>
+                <li>利用者は、<strong>Discord利用規約およびコミュニティガイドライン</strong>を遵守する義務を負います。</li>
+                <li><span class="badge badge-danger">重要</span>13歳未満の方は、Discordの利用規約により本サーバーを利用できません。</li>
+                <li>本規約に違反した場合、運営チームは適切な措置を講じる権利を有します。</li>
+            </ol>
+        </div>
+
+        <div class="section" id="article2">
+            <h2>第2条（禁止行為）</h2>
+            <p>以下の行為を禁止します。</p>
+
+            <h3>A. 法令・Discord規約違反行為</h3>
+            <ul>
+                <li>チートツール、改変クライアント、海賊版コンテンツなど、<strong>著作権・知的財産権を侵害する情報</strong>の共有</li>
+                <li>他のメンバーに対する<strong>脅迫、誹謗中傷、名誉毀損、プライバシーの侵害</strong></li>
+                <li>本人の同意の有無にかかわらず、<strong>個人を特定できる情報</strong>（住所、本名、電話番号、学校名、職場名など）を開示する行為（いわゆる「晒し行為」）</li>
+                <li>過度に暴力的、性的、または反社会的な画像・動画・文章の投稿（R18コンテンツ、ゴア画像、過激な政治的主張など）</li>
+                <li>サブアカウントやボットを用いたサーバー人数の不正な水増し（1人1アカウントが原則。複数アカウント所持の場合は事前に運営へ申告すること）</li>
+                <li>違法薬物、武器、その他違法行為に関する情報の提供や勧誘</li>
+            </ul>
+
+            <h3>B. スパム・荒らし行為</h3>
+            <ul>
+                <li>短時間での大量投稿（目安：<strong>1分間に10件以上</strong>）、同一内容の反復投稿、意味のない文字列の連投</li>
+                <li>不必要な@everyoneや@hereの使用、または特定メンバーへの過剰なメンション</li>
+                <li>チャンネルの目的やトピックと明らかに無関係な内容の投稿（各チャンネルの説明に従うこと）</li>
+                <li>外部サイトへの宣伝目的のリンク投稿（運営の許可がある場合を除く）</li>
+                <li>不審な短縮URLや、フィッシングサイト、マルウェア配布サイトへのリンク投稿</li>
+            </ul>
+
+            <h3>C. ハラスメント・マナー違反</h3>
+            <ul>
+                <li>人種、性別、性的指向、宗教、国籍、障害などに関する<strong>差別的な発言や嫌がらせ</strong></li>
+                <li>他のメンバーの人格を否定するような暴言、侮辱、いじめ</li>
+                <li>他のメンバーの発言を執拗に嘲笑ったり、会話を故意に妨害する行為</li>
+                <li>性的な内容を含むダイレクトメッセージ（DM）の無断送信</li>
+                <li>本人の了承なく実名や個人情報で呼ぶ行為（ニックネームの尊重）</li>
+                <li>相手が拒否しているにもかかわらず、DMやメンションを継続する行為（ストーキング行為）</li>
+            </ul>
+
+            <h3>D. ボイスチャット・Bot利用のマナー違反</h3>
+            <ul>
+                <li>ボイスチャット中の過度な騒音、叫び声、意図的な音声妨害</li>
+                <li>他の参加者の同意なく、ボイスチャットの内容を<strong>録音・録画・配信する行為</strong></li>
+                <li>音楽Botの長時間独占（目安：<strong>連続3時間以上</strong>）や、誰もいないボイスチャンネルでの放置</li>
+                <li>Botを用いたチャンネルの埋め尽くしや、過度な連続使用</li>
+                <li>いかなる手段による自動化ツール（AutoHotKey、ブラウザ拡張機能など）の使用</li>
+            </ul>
+
+            <h3>E. 絵文字の不正使用</h3>
+            <ul>
+                <li>本規約の禁止行為は、絵文字を使用した表現にも適用されます（暴力的、性的、差別的な絵文字の使用禁止）</li>
+                <li>不正な手段で大量の絵文字を作成し、サーバーの絵文字枠を占有して他のメンバーが絵文字を作成できなくする行為</li>
+                <li>著作権を侵害する絵文字（公式キャラクターの無断使用など）のアップロード</li>
+                <li>他のメンバーを不快にさせる目的での絵文字の乱用（スパム的な連投など）</li>
+            </ul>
+
+            <h3>F. その他の禁止行為</h3>
+            <ul>
+                <li>他のDiscordサーバーやSNSでのトラブルを本サーバーに持ち込む行為、または他サーバーのトラブルについて本サーバーで言及・追及する行為</li>
+                <li>運営チームやモデレーターになりすます行為</li>
+                <li>本規約の抜け穴を悪用する意図的な行為</li>
+                <li>運営チームの指示に従わない、または運営活動を妨害する行為</li>
+            </ul>
+        </div>
+
+        <div class="section" id="article3">
+            <h2>第3条（違反行為への対応）</h2>
+            <p>違反行為が確認された場合、以下の段階に応じて対応します。ただし、内容が悪質と判断された場合は、運営の裁量により段階を飛ばすことがあります。</p>
+
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>違反の度合い</th>
+                        <th>対応措置</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-warning">軽度</span></td>
+                        <td><strong>警告・注意</strong></td>
+                        <td>運営からの口頭での注意。警告は記録され累積します。再犯で次の段階へ。<br><small>（例：軽度のマナー違反、チャンネル目的の無視）</small></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">中度</span></td>
+                        <td><strong>タイムアウト</strong></td>
+                        <td>メッセージ送信やVC参加を一時制限。期間：軽度1時間、中度1日、重度3〜7日。<br><small>（例：暴言、スパム、軽度のハラスメント）</small></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-danger">重度</span></td>
+                        <td><strong>キック</strong></td>
+                        <td>サーバーから一時退出。再参加は可能だが、2回目以降はBAN対象。<br><small>（例：繰り返しの違反、他サーバートラブルの持ち込み）</small></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-dark">深刻</span></td>
+                        <td><strong>BAN（永久追放）</strong></td>
+                        <td>サーバーから永久追放。再参加不可。<br><small>（例：個人情報漏洩、違法行為の勧誘、常習的な嫌がらせ、児童に対する不適切な行為）</small></td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <div class="info">
+                <strong>※ 注意</strong><br>
+                対応は原則として運営チーム（オーナー・モデレーター）の協議を経て執行されます。
+            </div>
+        </div>
+
+        <div class="section" id="article4">
+            <h2>第4条（違反の報告）</h2>
+            <ol>
+                <li>利用者は、本規約に違反する行為を発見した場合、速やかに運営チームに報告することを推奨します。</li>
+                <li><strong>報告方法：</strong>運営用チケットシステム、または運営メンバーへのDM（証拠となるスクリーンショットの添付を推奨）</li>
+                <li>報告者の匿名性は可能な限り保護されますが、調査上必要な場合は開示されることがあります。</li>
+                <li>虚偽の報告や、報告システムの悪用は禁止行為とみなされます。</li>
+            </ol>
+        </div>
+
+        <div class="section" id="article5">
+            <h2>第5条（異議申し立て）</h2>
+            <ol>
+                <li>BAN処分を受けた場合のみ、利用者は運営チームに異議申し立てを行うことができます。</li>
+                <li>異議申し立ては、処分通知から<strong>7日以内</strong>に、wickページから行ってください。</li>
+                <li>運営チームは申し立てを審議し、結果を通知します。ただし、最終判断は運営チームに委ねられます。</li>
+            </ol>
+            <div class="warning">
+                <strong>⚠️ 注意：</strong>警告、タイムアウト、キックなどBAN以外の処分については、異議申し立ての対象外です。
+            </div>
+        </div>
+
+        <div class="section" id="article6">
+            <h2>第6条（運営体制と役割）</h2>
+            <ul>
+                <li><strong>オーナー：</strong>サーバーの最高責任者。規約の最終決定権を持ち、サーバーの長期的な方針を決定します。</li>
+                <li><strong>モデレーター：</strong>オーナーの委任のもと、日常的なモデレーション（違反対応、チャンネル・ロール管理など）を行います。</li>
+                <li><strong>透明性の原則：</strong>重大な処分（BANなど）については、プライバシーに配慮しつつ、必要に応じて理由を開示し、公正な運営を心がけます。</li>
+            </ul>
+        </div>
+
+        <div class="section" id="article7">
+            <h2>第7条（免責事項）</h2>
+            <ol>
+                <li>本サーバー内でのユーザー間の金銭トラブル（売買、貸借、詐欺など）について、運営チームは一切の責任を負いません。</li>
+                <li>利用者間のDMでのやり取りは、運営の管理範囲外です。ただし、サーバー内で発生したトラブルが原因である場合は、証拠提出により対応を検討します。</li>
+                <li>本サーバーは、Discordのサービス中断やデータ損失について責任を負いません。</li>
+            </ol>
+        </div>
+
+        <div class="section" id="article8">
+            <h2>第8条（プライバシーとデータの取り扱い）</h2>
+            <ol>
+                <li>運営チームは、モデレーション目的でメッセージログやユーザー情報を記録・保存することがあります。</li>
+                <li>収集した情報は、規約違反の調査・証拠保全・サーバー改善のためにのみ使用され、第三者に開示されることはありません（法的要請がある場合を除く）。</li>
+                <li>利用者は、サーバー退出時にデータ削除を要請できますが、違反記録は保持されることがあります。</li>
+            </ol>
+        </div>
+
+        <div class="section" id="article9">
+            <h2>第9条（無法地帯チャンネルの特例）</h2>
+            <ol>
+                <li>「無法地帯」として指定されたチャンネルにおいては、本規約の一部規定が緩和されます。</li>
+                <li>無法地帯チャンネルでは、通常は禁止される暴言、過激な表現、スパム的な投稿などが一定範囲で許容されます。</li>
+                <li>ただし、以下の行為は無法地帯でも禁止されます：
+                    <ul>
+                        <li>Discord利用規約に違反する行為（違法コンテンツ、児童への不適切行為など）</li>
+                        <li>個人情報の開示・晒し行為</li>
+                        <li>著作権侵害行為</li>
+                        <li>その他、オーナーが過激すぎると判断した行為</li>
+                    </ul>
+                </li>
+            </ol>
+            <div class="danger">
+                <strong>⚠️ 重要：</strong>オーナーは、無法地帯における行為が過激すぎると判断した場合、警告なしに処置を下すことがあります。
+            </div>
+        </div>
+
+        <div class="section" id="article10">
+            <h2>第10条（規約の改定）</h2>
+            <ol>
+                <li>本規約は、サーバーの状況変化に応じて運営チームが改定することがあります。</li>
+                <li>重要な改定を行う場合は、事前にサーバー内で告知し、<strong>7日間の周知期間</strong>を設けます。</li>
+                <li>改定後も本サーバーを継続利用する場合、新しい規約に同意したものとみなされます。</li>
+            </ol>
+        </div>
+
+        <div class="section" id="article11">
+            <h2>第11条（準拠法と管轄）</h2>
+            <ol>
+                <li>本規約は<strong>日本法</strong>に準拠します。</li>
+                <li>本規約に関する紛争は、運営チームとの誠実な協議により解決を図るものとします。</li>
+            </ol>
+        </div>
+
+        <div class="info" style="margin-top: 40px;">
+            <strong>📞 お問い合わせ</strong><br>
+            この規約についてご質問がある場合は、運営チームまでお気軽にお問い合わせください。
+        </div>
+    </div>
+
+    <footer>
+        <div style="margin-bottom: 15px;">
+            <a href="https://sesesaba.net" style="margin: 0 10px;">ホーム</a>
+            <span style="opacity: 0.5;">|</span>
+            <a href="https://sesesaba.net#privacy" style="margin: 0 10px;">プライバシーポリシー</a>
+        </div>
+        <p>&copy; 2024-2026 sese鯖 All rights reserved.</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Managed by sese_PAP_1122 & MRF_4922</p>
+        <p style="margin-top: 10px; font-size: 0.85em;">快適なサーバー環境のために、皆様のご協力をお願いいたします。</p>
+    </footer>
+</div>
+```
+
+</body>
+</html>
