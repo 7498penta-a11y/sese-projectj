@@ -477,7 +477,7 @@
       router(initialRoute);
 
       // -------------------------------------------------------------------------
-      // 機能関数群 (変更なし)
+      // 機能関数群
       // -------------------------------------------------------------------------
 
       async function updateDiscordStatus() {
@@ -549,6 +549,9 @@
         return { valid: true };
       }
 
+      // ==========================================
+      // 【修正箇所】Discord配信用データを含む送信処理
+      // ==========================================
       async function submitContact(e) {
         e.preventDefault();
         const msgInput = document.getElementById('contact-message');
@@ -570,11 +573,20 @@
         btn.innerText = '送信中...';
         
         try {
+          // メッセージだけでなく、ユーザー名・アイコン情報もサーバーへ送信します
+          // （サーバー側で .env を読み込んで Discord Webhook に投げてください）
+          const payload = {
+            message: msg,
+            username: currentUser ? currentUser.name : 'Guest',
+            avatarUrl: currentUser ? currentUser.photo : ''
+          };
+
           const res = await fetch('/api/contact', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: msg })
+            body: JSON.stringify(payload)
           });
+          
           const result = await res.json();
           if(result.success) { 
             alert('送信完了しました！'); 
@@ -584,7 +596,8 @@
             throw new Error(result.error || '送信失敗');
           }
         } catch (err) { 
-          alert('送信できませんでした（メッセージの送信回数が多すぎます）');
+          console.error(err);
+          alert('送信できませんでした（通信エラー）');
         } finally {
           btn.disabled = false;
           btn.innerText = originalText;
